@@ -1,2 +1,2 @@
 # dotfiles
-Containes my dotfiles
+Contains .configs 
