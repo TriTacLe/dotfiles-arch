@@ -1,0 +1,128 @@
+# Alacritty configuration optimized for macOS (Retina, Mid 2015 MacBook Pro)
+# Save as ~/.config/alacritty/alacritty.yml or ~/.alacritty.yml
+
+window:
+  dynamic_title: true
+  startup_mode: Windowed
+  padding:
+    x: 10
+    y: 8
+
+font:
+  # Use a macOS-friendly monospaced font. Replace with your preferred family if desired.
+  normal:
+    family: "SF Mono"
+    style: "Regular"
+  bold:
+    family: "SF Mono"
+    style: "Bold"
+  italic:
+    family: "SF Mono"
+    style: "Italic"
+  size: 12.0
+  offset:
+    x: 0
+    y: 0
+  glyph_offset:
+    x: 0
+    y: 0
+  use_thin_strokes: true
+
+mouse:
+  double_click:
+    threshold: 300
+  triple_click:
+    threshold: 300
+  hide_when_typing: true
+  enabled: true
+
+selection:
+  semantic_escape_characters: " ,│()?[]{}'\"`-:;./\\"
+  save_to_clipboard: true
+
+scrolling:
+  history: 10000                # large scrollback
+  multiplier: 3                 # mouse wheel speed multiplier
+
+colors:
+  # Solarized Dark palette (adjust any color to taste)
+  primary:
+    background: '0x002b36'
+    foreground: '0x839496'
+
+  cursor:
+    text:   '0x002b36'
+    cursor: '0xcb4b16'
+
+  normal:
+    black:   '0x073642'
+    red:     '0xdc322f'
+    green:   '0x859900'
+    yellow:  '0xb58900'
+    blue:    '0x268bd2'
+    magenta: '0xd33682'
+    cyan:    '0x2aa198'
+    white:   '0xeee8d5'
+
+  bright:
+    black:   '0x002b36'
+    red:     '0xcb4b16'
+    green:   '0x586e75'
+    yellow:  '0x657b83'
+    blue:    '0x839496'
+    magenta: '0x6c71c4'
+    cyan:    '0x93a1a1'
+    white:   '0xfdf6e3'
+
+draw_bold_text_with_bright_colors: true
+enable_csi_u_key_encoding: true
+
+key_bindings:
+  # Clipboard (Mac Command key)
+  - { key: C, mods: Command, action: Copy }
+  - { key: V, mods: Command, action: Paste }
+
+  # Font size controls (Command + = / Command + - / Command + 0)
+  - { key: Equals, mods: Command, action: IncreaseFontSize }
+  - { key: Minus,  mods: Command, action: DecreaseFontSize }
+  - { key: 0,      mods: Command, action: ResetFontSize }
+
+  # Create new Alacritty window (Command + N) and close window (Command + W)
+  - { key: N, mods: Command, action: SpawnNewInstance }
+  - { key: W, mods: Command, action: Quit }
+
+  # Search in scrollback (Command + F)
+  - { key: F, mods: Command, action: Search }
+
+  # Toggle fullscreen (Command + Enter)
+  - { key: Enter, mods: Command, action: ToggleFullscreen }
+
+  # Clear scrollback (Command + K)
+  - { key: K, mods: Command, action: ClearHistory }
+
+# Use current user's login shell. On macOS Monterey zsh is the default; replace with /bin/bash if needed.
+shell:
+  program: /bin/zsh
+  args:
+    - --login
+
+environment:
+  # Keep locale consistent with macOS defaults
+  LANG: en_US.UTF-8
+
+live_config_reload: true    # reload config when file changes
+
+# Platform specific configuration hints: on macOS, enable use of the system clipboard
+# by default. The selection.save_to_clipboard key above already ensures selection
+# is copied. No external clipboard tool needed on standard macOS setups.
+
+# Optional: Uncomment and adjust lines below if you want transparency (verify your
+# Alacritty version supports the field). If you encounter errors, remove or comment out.
+# window:
+#   opacity: 0.95
+
+# Notes:
+# - Replace "SF Mono" with "Menlo", "Iosevka", "Fira Code", or another installed font.
+# - For ligatures (if your chosen font supports them), Alacritty enables ligatures by default.
+# - To use a different color scheme, swap the colors block with a palette you prefer.
+

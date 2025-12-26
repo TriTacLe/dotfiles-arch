@@ -1,2 +1,5 @@
 # dotfiles
-Contains .configs 
+
+Clone 
+Add symlink 
+
