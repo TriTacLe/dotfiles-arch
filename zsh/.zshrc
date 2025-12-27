@@ -70,27 +70,16 @@ ZSH_THEME="robbyrussell"
 # Custom plugins may be added to $ZSH_CUSTOM/plugins/
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
-plugins=(
-  git
-  z
-  sudo
-  history
-  extract
-  fzf
-  docker
-  npm
-  python
-  zsh-autosuggestions
-  zsh-syntax-highlighting
-  vscode
-  node
-  react-native
-  zsh-wakatime
-)
-
-
+plugins=(git)
 
 source $ZSH/oh-my-zsh.sh
+
+# Only run for interactive shells
+# Only run for interactive shells
+if [[ -o interactive ]]; then
+  setopt prompt_subst
+  PROMPT='%F{cyan}%n%f@%F{green}%m%f %F{yellow}%~%f $(git_prompt_info)%F{cyan}%#%f '
+fi
 
 # User configuration
 
@@ -121,8 +110,9 @@ source $ZSH/oh-my-zsh.sh
 # alias zshconfig="mate ~/.zshrc"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
 
-[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
-neofetch
+alias lsg="ls -AG"
 
-export MAVEN_HOME="$HOME/.apache-maven-3.9.11"
-export PATH="$MAVEN_HOME/bin:$PATH"
+if [[ -o interactive ]] && command -v neofetch >/dev/null 2>&1; then
+  neofetch
+fi
+
