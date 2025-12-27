@@ -1,10 +1,25 @@
+source = $HOME/.config/hypr/mocha.conf
+
+$accent = $mauve
+$accentAlpha = $mauveAlpha
+$font = JetBrainsMono Nerd Font
+
+
+
+
+
+general {
+  disable_loading_bar = true
+  hide_cursor = true
+}
+
 background {
     monitor =
     path = /home/tri/Pictures/ali-liston-bg.png   # only png supported for now
     color = rgba(25, 20, 20, 1.0)
 
     # all these options are taken from hyprland, see https://wiki.hyprland.org/Configuring/Variables/#blur for explanations
-    blur_passes = 0 # 0 disables blurring
+    blur_passes = 2 # 0 disables blurring
     blur_size = 7
     noise = 0.0117
     contrast = 0.8916
@@ -12,6 +27,29 @@ background {
     vibrancy = 0.1696
     vibrancy_darkness = 0.0
 }
+
+label {
+    monitor =
+    text = cmd[update:30000] echo "$(date +"%R")"
+    color = $text
+    font_size = 90
+    font_family = $font
+    position = -30, 0
+    halign = right
+    valign = top
+}
+
+label {
+    monitor = 
+    text = cmd[update:43200000] echo "$(date +"%A, %d %B %Y")"
+    color = $text
+    font_size = 25
+    font_family = $font
+    position = -30, -150
+    halign = right
+    valign = top
+}
+#
 
 input-field {
     monitor =
@@ -26,7 +64,7 @@ input-field {
     font_color = rgb(10, 10, 10)
     fade_on_empty = false #true
     fade_timeout = 1000 # Milliseconds before fade_on_empty is triggered.
-    placeholder_text =  # Text rendered in the input box when it's empty.
+    placeholder_text = <span foreground="##$tectAlpha"><i> # Text rendered in the input box when it's empty.
     hide_input = false
     rounding = -1 # -1 means complete rounding (circle/oval)
     check_color = rgb(204, 136, 34)

@@ -76,10 +76,10 @@ source $ZSH/oh-my-zsh.sh
 
 # Only run for interactive shells
 # Only run for interactive shells
-if [[ -o interactive ]]; then
-  setopt prompt_subst
-  PROMPT='%F{cyan}%n%f@%F{green}%m%f %F{yellow}%~%f $(git_prompt_info)%F{cyan}%#%f '
-fi
+# if [[ -o interactive ]]; then
+  #setopt prompt_subst
+  #PROMPT='%F{cyan}%n%f@%F{green}%m%f %F{yellow}%1~%f $(git_prompt_info)%F{cyan}%#%f '
+#fi
 
 # User configuration
 
@@ -94,6 +94,9 @@ fi
 # else
 #   export EDITOR='nvim'
 # fi
+
+eval "$(starship init zsh)"
+
 
 # Compilation flags
 # export ARCHFLAGS="-arch $(uname -m)"
