@@ -38,7 +38,7 @@
   sort = -taggerdate
 
 [alias]
-    st = status -sb
+    st = status #-sb # --short
     aa = "add -A"
     sw = "switch"
     co = checkout
