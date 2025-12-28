@@ -4,6 +4,7 @@
 ~/.config/wireshark
 
 *.env
+# foreløpig
 
 # Prerequisites
 *.d
