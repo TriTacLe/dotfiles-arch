@@ -1,3 +1,12 @@
 # dotfiles
 
-Æ har blitt meganerd, men æ benke my så det gjør opp
+My dotfiles made for arch
+
+## Install packages
+```Bash
+sudo pacman -S --needed - < pacman.txt
+```
+
+```
+
+
