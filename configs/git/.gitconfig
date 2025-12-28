@@ -1,0 +1,52 @@
+[user]
+	name = Tri Tac Le
+	email = tritac.le@gmail.com
+
+[init]
+  defaultBranch = master
+ # defaultBranch = main
+    
+[pull]
+  rebase
+
+[core]
+  autocrlf = input
+  editor = vim
+  pager = less -FRX
+
+[format]
+    pretty="%C(magenta)%h %C(white) %an %ar%C(auto) %D%n%s%n"
+
+[color]
+  ui = auto
+
+[push]
+  autoSetupRemote = true
+  default = simple
+
+[pull]
+  rebase = false
+
+[rebase]
+  autoStash = true
+  missingCommitsCheck = warn
+
+[branch]
+  sort = -commiterdate
+
+[tag]
+  sort = -taggerdate
+
+[alias]
+    st = status -sb
+    aa = "add -A"
+    sw = "switch"
+    co = checkout
+    br = branch
+    cm = "commit -m"
+    ca = commit --amend --no-edit
+    last = log -1 --stat
+    lg = log --oneline --decorate --graph --all
+#    unstage = restore --staged
+#    discard = restore --
+
