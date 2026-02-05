@@ -32,7 +32,7 @@
   missingCommitsCheck = warn
 
 [branch]
-  sort = -commiterdate
+  sort = -committerdate
 
 [tag]
   sort = -taggerdate
@@ -50,3 +50,5 @@
 #    unstage = restore --staged
 #    discard = restore --
 
+[http]
+	version = HTTP/1.1

@@ -95,7 +95,8 @@ source $ZSH/oh-my-zsh.sh
 #   export EDITOR='nvim'
 # fi
 
-eval "$(starship init zsh)"
+# Comment out on mac
+# eval "$(starship init zsh)"
 
 
 # Compilation flags
@@ -119,3 +120,6 @@ if [[ -o interactive ]] && command -v neofetch >/dev/null 2>&1; then
   neofetch
 fi
 
+# exports
+export PATH="/opt/local/bin:opt/local/sbin.$PATH"
+export PATH="$HOME/.local/bin:$PATH"
