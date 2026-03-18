@@ -17,8 +17,8 @@
 #
 # Ghostty can reload the configuration while running by using the menu
 # options or the bound key (default: Command + Shift + comma on macOS and
-# Control + Shift + comma on other platforms). Not all config options can be
-# reloaded while running; some only apply to new windows and others may require
+# Control + Shift + comma on other platforms). Not all config options can
+# be reloaded while running; some only apply to new windows and others may require
 # a full restart to take effect.
 
 # Config syntax crash course
@@ -34,6 +34,57 @@
 # key= value
 # key =value
 # key = value
+# Font configuration from Alacritty
+font-family = JetBrainsMono Nerd Font
+#font-family = Monocraft
+font-size = 10
+
+# Window configuration from Alacritty
+window-padding-x = 10
+window-padding-y = 5
+background-opacity = 0.75
+
+# Theme colors from Alacritty coolnight theme
+background = 011423
+foreground = cbe0f0
+
+# Normal colors
+palette = 0=100e23
+palette = 1=ff5458
+palette = 2=62d196
+palette = 3=ffb378
+palette = 4=65b2ff
+palette = 5=906cff
+palette = 6=63f2f1
+palette = 7=cbe3e7
+
+# Bright colors
+palette = 8=565575
+palette = 9=ff8080
+palette = 10=95ffa4
+palette = 11=ffe9aa
+palette = 12=91ddff
+palette = 13=c991e1
+palette = 14=aaffe4
+palette = 15=e8fafc
+
+confirm-close-surface = false
+
+# Cursor colors
+#cursor-color = 479cbb
+#cursor-text = 011423
+
+# Keep cursor animation from Ghostty
+#custom-shader = shaders/cursor_smear.glsl
+custom-shader = shaders/cursor_smear_fade.glsl
+
+# Keyboard shortcuts
+keybind = ctrl+backspace=text:\x1b[127;5u
+keybind = alt+backspace=text:\x1b[127;3u
+keybind = ctrl+left=text:\x1b[1;5D 
+keybind = ctrl+right=text:\x1b[1;5C 
+keybind = alt+left=text:\x1b[1;3D 
+keybind = alt+right=text:\x1b[1;3C
 #
 # # Any line beginning with a # is a comment. It's not possible to put
 # # a comment after a config option, since it would be interpreted as a

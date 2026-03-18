@@ -32,7 +32,7 @@
   missingCommitsCheck = warn
 
 [branch]
-  sort = -commiterdate
+  sort = -committerdate
 
 [tag]
   sort = -taggerdate

@@ -1,32 +1,33 @@
-# If you come from bash you might have to change your $PATH.
-# export PATH=$HOME/bin:$HOME/.local/bin:/usr/local/bin:$PATH
+# Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.config/zsh/.zshrc.
+#zmodload zsh/zprof
+unset ZSH  # Clear old environment variable
 
-# Path to your Oh My Zsh installation.
+# Initialization code that may require console input (password prompts, [y/n]
+# confirmations, etc.) must go above this block; everything else may go below.
+if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
+  source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
+fi
+
+typeset -g POWERLEVEL9K_INSTANT_PROMPT=quiet
+
+# Path to oh-my-zsh installation.
 export ZSH="$HOME/.oh-my-zsh"
+export TERMINAL_EMULATOR="ghostty"
 
-# Set name of the theme to load --- if set to "random", it will
-# load a random theme each time Oh My Zsh is loaded, in which case,
-# to know which specific one was loaded, run: echo $RANDOM_THEME
-# See https://github.com/ohmyzsh/ohmyzsh/wiki/Themes
-ZSH_THEME="robbyrussell"
+# path to cargo programs (uncomment if you have Rust/Cargo installed)
+# export PATH="$PATH:$HOME/.cargo/bin"
+# export PATH="$PATH:/opt/miniconda3/bin"  # Uncomment if you have miniconda installed
+export PATH="$PATH:$HOME/.opencode/bin"  # opencode CLI
 
-# Set list of themes to pick from when loading at random
-# Setting this variable when ZSH_THEME=random will cause zsh to load
-# a theme from this variable instead of looking in $ZSH/themes/
-# If set to an empty array, this variable will have no effect.
-# ZSH_THEME_RANDOM_CANDIDATES=( "robbyrussell" "agnoster" )
+export BROWSER=librewolf
 
-# Uncomment the following line to use case-sensitive completion.
-# CASE_SENSITIVE="true"
+export GH_CONFIG_DIR="$HOME/.config/gh"
 
-# Uncomment the following line to use hyphen-insensitive completion.
-# Case-sensitive completion must be off. _ and - will be interchangeable.
-# HYPHEN_INSENSITIVE="true"
+export NVM_DIR=/usr/share/nvm
+#source $NVM_DIR/init-nvm.sh
 
-# Uncomment one of the following lines to change the auto-update behavior
-# zstyle ':omz:update' mode disabled  # disable automatic updates
-# zstyle ':omz:update' mode auto      # update automatically without asking
-# zstyle ':omz:update' mode reminder  # just remind me to update when it's time
+ZSH_THEME="powerlevel10k"
+
 
 # Uncomment the following line to change how often to auto-update (in days).
 # zstyle ':omz:update' frequency 13
@@ -39,9 +40,38 @@ ZSH_THEME="robbyrussell"
 
 # Uncomment the following line to disable auto-setting terminal title.
 # DISABLE_AUTO_TITLE="true"
+#
 
+# Uncomment the following line to use hyphen-insensitive completion.
+# Case-sensitive completion must be off. _ and - will be interchangeable.
+HYPHEN_INSENSITIVE="true"
 # Uncomment the following line to enable command auto-correction.
-# ENABLE_CORRECTION="true"
+ENABLE_CORRECTION="true"
+
+# Enable completion
+autoload -Uz compinit && compinit -d ~/.config/zsh/.zcompdump
+
+
+
+[ -f /usr/share/fzf/key-bindings.zsh ] && source /usr/share/fzf/key-bindings.zsh
+[ -f /usr/share/fzf/completion.zsh ] && source /usr/share/fzf/completion.zsh
+
+
+export HISTSIZE=12000
+export SAVEHIST=10000
+export HISTFILE=~/.zshhist
+export HISTDUP=erase
+
+# Word boundaries - fjernet / så stier deles opp ved skråstrekk
+export WORDCHARS='*?_-.[]~=&;!#$%^(){}<>'
+
+setopt INC_APPEND_HISTORY
+setopt SHARE_HISTORY
+setopt HIST_IGNORE_SPACE
+setopt HIST_IGNORE_ALL_DUPS
+setopt HIST_SAVE_NO_DUPS
+setopt HIST_IGNORE_DUPS
+setopt HIST_FIND_NO_DUPS
 
 # Uncomment the following line to display red dots whilst waiting for completion.
 # You can also set it to another string to have that shown instead of the default red dots.
@@ -72,14 +102,6 @@ ZSH_THEME="robbyrussell"
 # Add wisely, as too many plugins slow down shell startup.
 plugins=(git)
 
-source $ZSH/oh-my-zsh.sh
-
-# Only run for interactive shells
-# Only run for interactive shells
-# if [[ -o interactive ]]; then
-  #setopt prompt_subst
-  #PROMPT='%F{cyan}%n%f@%F{green}%m%f %F{yellow}%1~%f $(git_prompt_info)%F{cyan}%#%f '
-#fi
 
 # User configuration
 
@@ -92,30 +114,288 @@ source $ZSH/oh-my-zsh.sh
 # if [[ -n $SSH_CONNECTION ]]; then
 #   export EDITOR='vim'
 # else
-#   export EDITOR='nvim'
+#   export EDITOR='mvim'
 # fi
 
-eval "$(starship init zsh)"
-
-
 # Compilation flags
-# export ARCHFLAGS="-arch $(uname -m)"
+# export ARCHFLAGS="-arch x86_64"
 
-# Set personal aliases, overriding those provided by Oh My Zsh libs,
-# plugins, and themes. Aliases can be placed here, though Oh My Zsh
-# users are encouraged to define aliases within a top-level file in
-# the $ZSH_CUSTOM folder, with .zsh extension. Examples:
-# - $ZSH_CUSTOM/aliases.zsh
-# - $ZSH_CUSTOM/macos.zsh
-# For a full list of active aliases, run `alias`.
-#
-# Example aliases
-# alias zshconfig="mate ~/.zshrc"
-# alias ohmyzsh="mate ~/.oh-my-zsh"
 
-alias lsg="ls -AG"
+# Machine specific .,m
+case "$HOST" in
+    arch*)
+        alias update="sudo pacman -Syyu && paru && hyprpm update"
+        alias refreshmirrors="rate-mirrors arch | sudo tee /etc/pacman.d/mirrorlist"
+        alias pkgfnd="pacman -Q | grep"
+        alias hyprconf="cd ~/.config/hypr && nvim ~/.config/hypr/hyprland.conf"
 
-if [[ -o interactive ]] && command -v neofetch >/dev/null 2>&1; then
-  neofetch
-fi
+        # Defer the other plugins for better startup time
+        source ~/.config/zsh/zsh-defer/zsh-defer.plugin.zsh
 
+        # zsh-defer source /usr/share/zsh/plugins/fast-syntax-highlighting/fast-syntax-highlighting.plugin.zsh
+        zsh-defer source /usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh
+        # zsh-defer source /usr/share/zsh/plugins/zsh-autopair/autopair.zsh
+        # zsh-defer source /usr/share/zsh/plugins/zsh-you-should-use/you-should-use.plugin.zsh
+
+        # zsh-defer source /usr/share/zsh/plugins/zsh-history-substring-search/zsh-history-substring-search.zsh
+
+        # Disabled plugins
+        #
+        #zsh-defer source /usr/share/zsh/plugins/zsh-vi-mode/zsh-vi-mode.plugin.zsh
+
+        function _accept_or_complete() {
+            if [[ -n "$POSTDISPLAY" ]]; then
+                zle autosuggest-accept
+            else
+                zle expand-or-complete
+            fi
+        }
+        zle -N _accept_or_complete
+        bindkey '^I' _accept_or_complete
+
+
+        # bindkey '^[[A' history-substring-search-up   # Up arrow
+        # bindkey '^[[B' history-substring-search-down # Down arrow
+
+        # bindkey '^K' history-substring-search-up     # ctrl k
+        # bindkey '^J' history-substring-search-down   # ctrl j
+
+        # HOST SPECIFIC
+        case "$HOST" in
+            archbased)
+                ;;
+
+            archflipper)
+                [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+                source ~/.fzf-git.sh
+                ;;
+        esac
+        ;;
+
+
+    debian*|i5server)
+        alias inst="sudo apt install"
+        alias update="sudo apt update && sudo apt upgrade"
+        ;;
+
+    *)
+        alias update="echo 'no system-specific update command defined'"
+        ;;
+esac
+
+alias zshconf="nvim ~/.zshrc +6 && source ~/.zshrc"
+alias ohmyzsh="nvim ~/.config/.oh-my-zsh"
+
+bindkey '^A' beginning-of-line   # Ctrl-A: Move to beginning
+bindkey '^E' end-of-line         # Ctrl-E: Move to end
+
+bindkey '^[[127;5u' backward-kill-word  # Ctrl+Backspace: Delete word
+bindkey '^[[127;3u' backward-kill-line  # Alt+Backspace: Delete entire line
+bindkey '^[[1;5D' backward-word      # Ctrl+Pil venstre
+bindkey '^[[1;5C' forward-word       # Ctrl+Pil høyre
+bindkey '^[[1;3D' beginning-of-line  # Alt+Pil venstre
+bindkey '^[[1;3C' end-of-line        # Alt+Pil høyre
+ 
+# To customize prompt, run `p10k configure` or edit ~/.config/zsh/.p10k.zsh.
+[[ ! -f ~/.config/zsh/.p10k.zsh ]] || source ~/.config/zsh/.p10k.zsh
+source /usr/share/zsh-theme-powerlevel10k/powerlevel10k.zsh-theme
+
+alias please="sudo"
+alias fking="sudo"
+alias wifilist="nmcli device wifi list"
+alias wificonnect="nmcli device wifi connect --ask"
+alias performance="sudo cpupower frequency-set -g performance"
+# alias powersave="sudo cpupower frequency-set -g powersave"
+# alias wifix="rfkill unblock wlan"
+alias c="clear"
+alias ~="cd ~"
+alias moenmarin="cd /home/tri/Desktop/moenmarin/"
+alias dotfiles="cd /home/tri/Desktop/projects/dotfiles/"
+alias orbit="cd /home/tri/Desktop/orbit/"
+alias project=" cd /home/tri/Desktop/projects/"
+alias nfch="neofetch"
+alias g="git"
+alias l="ls"
+alias lss="eza --tree --icons --level=2"
+alias lsss="eza --tree --icons --level=3"
+alias lssss="eza --tree --icons --level=4"
+alias ls="eza --icons"
+alias la="eza --long --header --icons --git --all --group-directories-first --sort=type"
+alias py="python"
+alias serialfix="sudo chmod +766 /dev/ttyACM0"
+alias cpufetch="cpufetch --style fancy --color 230,50,45:240,230,230:0,0,0:250,70,65:170,170,170"
+alias fetch="fastfetch"
+alias desktopentry="/usr/share/applications/"
+alias nvide='nohup neovide & disown'
+alias pyvenv="chmod +x .venv/bin/activate && source .venv/bin/activate"
+alias mkvenv="py -m venv .venv && chmod +x .venv/bin/activate && source .venv/bin/activate"
+alias desktopentry="cd /usr/share/applications/"
+alias bt="sudo systemctl start bluetooth"
+alias btui="bluetuith"
+alias webpconvert="for file in *.webp; dwebp $file -o ${file/%.webp/.png} && rm $file"
+alias heicconvert="for file in *.heic; do heif-convert $file ${file/%.heic/.png}; done"
+alias gpt="chatgpt.sh -cc"
+alias qrc="qrencode -t UTF8"
+alias mccmd="mcrcon -H 129.241.208.10 -P 25575 -p "
+alias systat="sudo systemctl status"
+alias systart="sudo systemctl restart"
+alias stow="stow . --dotfiles -t $HOME"
+alias fnd="ls -a | grep -i"
+alias lsblk="lsblk | bat -p --style=full --theme=\"Sublime Snazzy\" -l=makefile"
+alias templestart="qemu-system-x86_64 -m 512M -enable-kvm -drive file=$HOME/Temple/temple.qcow2"
+alias templestart="qemu-system-x86_64 -m 512M -enable-kvm -drive file=$HOME/Temple/zeal.qcow2"
+alias yt-480="yt-dlp -f \"bestvideo[height=480][fps=30]+bestaudio/best[height=480][fps=30]\" --cookies-from-browser firefox"
+alias yt-720="yt-dlp -f \"bestvideo[height=720][fps=60]+bestaudio/best[height=720][fps=60]\" --cookies-from-browser firefox"
+alias yt-1080="yt-dlp -f \"bestvideo[height=1080][fps=60]+bestaudio/best[height=1080][fps=60]\" --cookies-from-browser firefox"
+alias yt-mp3="yt-dlp -x --audio-format mp3 --audio-quality 0 --cookies-from-browser firefox"
+alias hypr-fix='export HYPRLAND_INSTANCE_SIGNATURE=$(\ls -t /run/user/1000/hypr | head -n1)'
+alias powerdraw="upower -i $(upower -e | grep BAT) | grep -i energy-rate"
+alias ..="cd .."
+
+# quick commit and push
+gacp() {
+    git add .
+    git commit -m "$*"
+    git push
+}
+
+dnsfix() {
+    sudo tee /etc/resolv.conf > /dev/null <<'EOF'
+# Generated by NetworkManager
+search home
+nameserver 1.1.1.1
+options edns0 trust-ad
+EOF
+}
+
+#alias powersave="sudo echo "2000000" > /sys/devices/system/cpu/cpu*/cpufreq/scaling_max_freq"
+#alias performance="sudo echo "3201000" > /sys/devices/system/cpu/cpu*/cpufreq/scaling_max_freq"
+
+alias fk="fuck"
+
+
+export PATH="$HOME/.local/bin:$PATH"
+export XDG_DATA_DIRS="/var/lib/flatpak/exports/share:/usr/local/share:/usr/share"
+export EDITOR="nvim"
+
+# configure and init zoxide
+eval "$(zoxide init zsh)"
+alias cd="z"
+
+[[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
+
+# Auto-activate Python virtual environments
+chpwd() {
+  if [[ -d .venv ]]; then
+    source .venv/bin/activate
+  elif [[ -d venv ]]; then
+    source venv/bin/activate
+  fi
+}
+
+# Davinci converter
+conv() {
+    if [ -z "$1" ]; then
+        echo "Usage: conv inputfile [outputfile]"
+        return 1
+    fi
+
+    input="$1"
+    if [ -n "$2" ]; then
+        output="$2"
+    else
+        base="${input%.*}"
+        output="${base}.mov"
+    fi
+
+    ffmpeg -i "$input" -c:v prores_ks -profile:v 3 -c:a pcm_s16le "$output"
+}
+
+function _accept_or_complete() {
+    if [[ -n "$POSTDISPLAY" ]]; then
+        zle autosuggest-accept
+    else
+        zle expand-or-complete
+    fi
+}
+
+cpy() {
+    if [[ -f $1 ]]; then
+        cat $1 | wl-copy
+    else
+        echo $1 | wl-copy
+    fi
+}
+
+pdf() {
+    zathura $1 & disown && pkill $TERMINAL_EMULATOR
+}
+
+th() {
+    thunar . & disown && pkill $TERMINAL_EMULATOR
+}
+
+sunshine_start() {
+    export DISPLAY:=1
+    sunshine
+}
+
+fuck () {
+    TF_PYTHONIOENCODING=$PYTHONIOENCODING;
+    export TF_SHELL=zsh;
+    export TF_ALIAS=fuck;
+    TF_SHELL_ALIASES=$(alias);
+    export TF_SHELL_ALIASES;
+    TF_HISTORY="$(fc -ln -10)";
+    export TF_HISTORY;
+    export PYTHONIOENCODING=utf-8;
+    TF_CMD=$(
+        thefuck THEFUCK_ARGUMENT_PLACEHOLDER $@
+        ) && eval $TF_CMD;
+        unset TF_HISTORY;
+        export PYTHONIOENCODING=$TF_PYTHONIOENCODING;
+        test -n "$TF_CMD" && print -s $TF_CMD
+    }
+
+
+
+# TMUX session handler - COMMENTED OUT
+# [[ $- == *i* ]] || return
+# 
+# # Define default sessions
+# sessions=(work home school devops)
+# 
+# # check for sessions
+# for s in "${sessions[@]}"; do
+#   tmux has-session -t "$s" 2>/dev/null || tmux new-session -d -s "$s"
+# done
+# 
+# if command -v tmux &>/dev/null \
+#   && [[ -t 1 ]] \
+#   && [[ -z "$TMUX" ]]; then
+# 
+#   # create picker list and add reset option
+#   selection=$(
+#     {
+#       tmux list-sessions -F '#S'
+#       echo "RESET"
+#     } | fzf --height=80% --layout=reverse --border=rounded --margin=40%,30%
+#   )
+# 
+#   if [[ "$selection" == "RESET" ]]; then
+#     tmux kill-server
+#     rm -f ~/.tmux/resurrect/*
+# 
+#     for s in "${sessions[@]}"; do
+#       tmux new-session -d -s "$s"
+#     done
+# 
+#     exec tmux attach -t home
+# 
+#   elif [[ -n "$selection" ]]; then
+#     exec tmux attach -t "$selection"
+# 
+#   else
+#     exec tmux attach -t home
+#   fi
+# fi

@@ -4,6 +4,17 @@
 ~/.config/wireshark
 
 *.env
+
+# Backup files
+*.backup
+*.bak
+*.backup-*
+*~
+
+# Zsh generated files
+.zcompdump
+.zcompdump-*
+*.zwc
 # foreløpig
 .config
 .wakatime.cfg

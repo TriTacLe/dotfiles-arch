@@ -1,12 +1,20 @@
-# dotfiles
+# Dotfiles
 
-My dotfiles made for arch
+My arch dotfiles
 
-## Install packages
-```Bash
+## **Mega creds til:**: @filip-rs
+
+## Install
+
+### 1. Packets
+```bash
 sudo pacman -S --needed - < pacman.txt
+yay -S --needed - < pacman.txt
 ```
 
+### 2. Dotfiles 
+```bash
+cd ~/dotfiles
+stow . --dotfiles -t ~
 ```
-
 
