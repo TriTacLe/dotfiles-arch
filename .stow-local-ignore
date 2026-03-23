@@ -1,0 +1,18 @@
+# Stow ignore file - these files won't be symlinked to ~
+
+# Documentation
+README.md
+
+# Package lists (should not be in ~)
+pacman.txt
+
+# Git files
+.gitignore
+
+# Backup directories
+hyprback/
+
+# Any .backup files
+*.backup
+*.bak
+*.backup-*

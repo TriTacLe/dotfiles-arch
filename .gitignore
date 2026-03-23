@@ -1,69 +1,108 @@
+#  nvim
 .config/nvim/lazy-lock.json
-.config/nvim/lazyvim.json  
-~/.config/github-copilot 
+.config/nvim/lazyvim.json
+
+# SENSITIVE CONFIGS 
+~/.config/github-copilot
 ~/.config/wireshark
+**/*token*
+**/*secret*
+**/*apikey*
+**/.env
+*.pem
+*.key
 
-*.env
-
-# Backup files
-*.backup
-*.bak
-*.backup-*
-*~
-
-# Zsh generated files
+# ZSH/GENERATED FILES
+.config/zsh/.zcompdump*
+.config/zsh/*.zwc
+.config/**/.zcompdump*
 .zcompdump
 .zcompdump-*
 *.zwc
-# foreløpig
-.config
+.zsh_history
+.zsh_sessions
+.zshrc.zwc
+#
+# SHELL HISTORY (genereres automatisk)
+.bash_history
+.lesshst
+.wget-hsts
+.curlrc
+.node_repl_history
+.python_history
+.mysql_history
+.psql_history
+.sqlite_history
+
+# cache 
+.cache/
+**/.cache/
+*.cache
+Thumbs.db
+.DS_Store
+*.swp
+*.swo
+*~
+
+# backups
+*.backup
+*.bak
+*.backup-*
+*.orig
+*.rej
+
+# ============================================
+# APPLICATION SPECIFIC
+# ============================================
 .wakatime.cfg
+.viminfo
+.nvimlog
+.nerd-fonts*
+.gtkrc-2.0
+.config/pulse/
+.config/BraveSoftware/
+.config/Code/
+.config/chromium/
 
-# Prerequisites
+# ============================================
+# TEMPORARY FILES
+# ============================================
+tmp/
+temp/
+*.tmp
+*.temp
+
+# ============================================
+# BUILD ARTIFACTS (hvis du kompilerer ting)
+# ============================================
 *.d
-
-# Object files
 *.o
 *.ko
 *.obj
 *.elf
-
-# Linker output
 *.ilk
 *.map
 *.exp
-
-# Precompiled Headers
 *.gch
 *.pch
-
-# Libraries
 *.lib
 *.a
 *.la
 *.lo
-
-# Shared objects (inc. Windows DLLs)
 *.dll
 *.so
 *.so.*
 *.dylib
-
-# Executables
 *.exe
 *.out
 *.app
 *.i*86
 *.x86_64
 *.hex
-
-# Debug files
 *.dSYM/
 *.su
 *.idb
 *.pdb
-
-# Kernel Module Compile Results
 *.mod*
 *.cmd
 .tmp_versions/
@@ -71,6 +110,4 @@ modules.order
 Module.symvers
 Mkfile.old
 dkms.conf
-
-# debug information files
 *.dwo

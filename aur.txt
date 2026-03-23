@@ -1,0 +1,5 @@
+brave-bin
+git
+lazygit
+neofetch-git
+visual-studio-code-bin

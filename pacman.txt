@@ -13,7 +13,6 @@ blueman
 bluez
 bluez-utils
 boost
-brave-bin
 breeze
 breeze-gtk
 breeze-plymouth
@@ -48,7 +47,6 @@ fortune-mod
 fzf
 gdm
 ghostty
-git
 gnome-backgrounds
 gnome-calculator
 gnome-calendar
@@ -130,7 +128,6 @@ kwin
 kwin-x11
 kwrited
 layer-shell-qt
-lazygit
 less
 libkscreen
 libksysguard
@@ -148,7 +145,6 @@ malcontent
 milou
 nano
 nautilus
-neofetch-git
 neovim
 network-manager-applet
 networkmanager
@@ -226,7 +222,6 @@ ttf-jetbrains-mono-nerd
 tumbler
 uwsm
 vim
-visual-studio-code-bin
 vulkan-intel
 vulkan-nouveau
 vulkan-radeon

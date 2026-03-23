@@ -201,7 +201,6 @@ bindkey '^[[1;3C' end-of-line        # Alt+Pil høyre
 source /usr/share/zsh-theme-powerlevel10k/powerlevel10k.zsh-theme
 
 alias please="sudo"
-alias fking="sudo"
 alias wifilist="nmcli device wifi list"
 alias wificonnect="nmcli device wifi connect --ask"
 alias performance="sudo cpupower frequency-set -g performance"
@@ -214,7 +213,6 @@ alias dotfiles="cd /home/tri/Desktop/projects/dotfiles/"
 alias orbit="cd /home/tri/Desktop/orbit/"
 alias project=" cd /home/tri/Desktop/projects/"
 alias nfch="neofetch"
-alias g="git"
 alias l="ls"
 alias lss="eza --tree --icons --level=2"
 alias lsss="eza --tree --icons --level=3"
@@ -251,6 +249,12 @@ alias yt-mp3="yt-dlp -x --audio-format mp3 --audio-quality 0 --cookies-from-brow
 alias hypr-fix='export HYPRLAND_INSTANCE_SIGNATURE=$(\ls -t /run/user/1000/hypr | head -n1)'
 alias powerdraw="upower -i $(upower -e | grep BAT) | grep -i energy-rate"
 alias ..="cd .."
+alias o="opencode"
+
+
+# Git
+alias g="git"
+alias gs="git status"
 
 # quick commit and push
 gacp() {
@@ -399,3 +403,20 @@ fuck () {
 #     exec tmux attach -t home
 #   fi
 # fi
+
+# ============================================
+# CHEAT - Community cheat sheets
+# ============================================
+
+# Fuzzy search cheat sheets
+cheatf() {
+    cheat $(cheat -l | cut -d' ' -f1 | fzf --preview 'cheat {}' --preview-window=right:70%)
+}
+alias cht="cheatf" 
+
+# Alias for common cheats
+alias cg='cheat git'
+alias cgz='cheat zsh'
+alias cgp='cheat python'
+alias cgd='cheat docker'
+
