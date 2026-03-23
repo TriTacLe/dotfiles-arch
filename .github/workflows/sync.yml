@@ -1,0 +1,12 @@
+name: sync packages
+
+on: 
+  schedule:
+    - cron: '0 0 * * 0' # each sunday
+
+jobs:
+  sync: 
+    runs-on: archlinux # this need arch container 
+    steps:
+      - run: pacman -Qqe < pacman.txt
+      - run: git commit -m "auto: sync packages" && git push 
