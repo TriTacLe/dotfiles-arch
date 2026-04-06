@@ -1,18 +1,44 @@
-# Stow ignore file - these files won't be symlinked to ~
+# =============================================================================
+# Stow Ignore File
+# =============================================================================
+# These patterns tell stow which files/directories NOT to symlink into $HOME
+# =============================================================================
 
 # Documentation
-README.md
+README\.md
+GUIDE\.md
 
 # Package lists (should not be in ~)
-pacman.txt
+pacman\.txt
+aur\.txt
+packages/
 
 # Git files
-.gitignore
+\.gitignore
+\.git/
+
+# Scripts directory (not a config)
+scripts/
+
+# GitHub configs
+\.github/
+
+# Custom bin (should be handled separately if needed)
+bin/
+
+# Install files
+install\.sh
+Makefile
 
 # Backup directories
 hyprback/
+.*\.backup-.*
 
-# Any .backup files
-*.backup
-*.bak
-*.backup-*
+# Any backup files
+\.backup$
+\.bak$
+\.backup-.*
+
+# Temporary files
+test\.
+\.java$

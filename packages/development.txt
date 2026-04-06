@@ -1,0 +1,41 @@
+# Development tools and languages
+
+# Editors
+neovim
+vim
+
+# Version control
+lazygit
+
+# Languages and runtimes
+nodejs
+npm
+python
+python-pip
+python-pynvim
+
+# Build tools
+cmake
+clang
+lldb
+boost
+
+# Language servers and tools (managed by Mason in nvim, but some need system install)
+ctags
+
+# Docker
+docker
+docker-compose
+
+# Terminal multiplexer
+tmux
+
+# Database tools
+
+# API testing
+
+# Documentation
+
+# SDK managers (installed separately)
+# sdkman (curl -s "https://get.sdkman.io" | bash)
+# nvm (curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash)

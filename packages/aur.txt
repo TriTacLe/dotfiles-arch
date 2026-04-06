@@ -1,0 +1,24 @@
+# AUR Packages - install with yay/paru
+
+# Browsers
+brave-bin
+
+# Development
+visual-studio-code-bin
+
+# System info
+neofetch-git
+
+# Package manager helper
+yay
+
+# Themes
+catppuccin-gtk-theme-mocha
+
+# Shell theme
+zsh-theme-powerlevel10k
+
+# Google drive integration
+gvfs-google
+
+# Additional tools can be added here
