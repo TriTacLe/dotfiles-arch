@@ -1,18 +1,38 @@
-# Stow ignore file - these files won't be symlinked to ~
+# =============================================================================
+# Stow Ignore File
+# =============================================================================
+# These patterns tell stow which files/directories NOT to symlink into $HOME
+# =============================================================================
+# CRITICAL: Use ^ anchor to match from start of path
+# CORRECT: ^\.git  (matches .git at root)
+# WRONG:   \.git/ (doesn't anchor, trailing slash wrong)
+# =============================================================================
 
-# Documentation
-README.md
+# NEVER STOW THESE - DANGEROUS IF SYMLINKED TO HOME:
+^\.git
+^\.github
+^\.gitignore
 
-# Package lists (should not be in ~)
-pacman.txt
+# Repository metadata (not config files)
+^packages
+^scripts
+^bin
 
-# Git files
-.gitignore
+# Documentation (not configs)
+^README\.md
+^GUIDE\.md
+^INSTALL\.md
+^Makefile
 
-# Backup directories
-hyprback/
+# Install script itself
+^install\.sh
 
-# Any .backup files
-*.backup
-*.bak
-*.backup-*
+# Backup directories and files
+^hyprback
+.*\.backup-.*
+\.backup$
+\.bak$
+
+# Temporary files
+^test\.
+.*\.java$

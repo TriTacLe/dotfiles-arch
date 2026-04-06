@@ -2,25 +2,30 @@ name: test
 
 on:
   push:
-    branches: [ master, main ]
+    branches: [master, main]
   pull_request:
-    branches: [ master, main ]
+    branches: [master, main]
 
-    jobs:
-      test:
-        runs-on: ubuntu-latest
-        steps:
-          - uses: actions/checkout@v4
-          - name: test shell scripts
-            run: |
-              find . -name "*.sh" -type f -exec shellcheck {} \;
-          - name: test stow
-            run: |
-              sudo apt-get install stow
-              stow -n -t ~ . 
-    
-          - name: check JSON/YAML configs
-            run: |
-              find . -name "*.json" -type f -exec python -m json.tool {} \;
-              find . -name "*.yml" -o -name "*.yaml" | xargs -I {} yamllint {}     
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: install deps
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y shellcheck # yamllint
+      - name: test shell scripts
+        run: |
+          find . -name "*.sh" -type f -exec shellcheck {} \;
+      - name: test stow
+        run: |
+          sudo apt-get install stow
+          stow -n -t ~ . 
 
+        # TODO: kanskje
+#      - name: check JSON and YAML configs
+#        run: |
+#          find . -name "*.json" -type f -exec python -m json.tool {} \;
+#          find . -name "*.yml" -o -name "*.yaml" | xargs -I {} yamllint {}     
+#
