@@ -1,0 +1,44 @@
+# GUI Applications
+
+# Browsers
+firefox
+firefox-developer-edition
+
+# Communication
+slack-desktop
+
+# Office
+libreoffice-fresh
+
+# Media
+spotify-launcher
+obsidian
+
+# Image viewing
+loupe
+
+# System utilities
+gnome-calculator
+gnome-calendar
+gnome-clocks
+gnome-disk-utility
+gnome-system-monitor
+gnome-text-editor
+gnome-tweaks
+baobab
+
+# Development
+visual-studio-code-bin
+
+# Other
+evince
+papers
+simple-scan
+snapshot
+showtime
+gnome-maps
+gnome-weather
+gnome-music
+gnome-contacts
+nautilus
+sushi

@@ -1,0 +1,83 @@
+# Desktop Environment - Hyprland and related packages
+
+# Wayland compositor
+hyprland
+hyprpaper
+hypridle
+hyprlock
+hyprshot
+
+# Display manager
+sddm
+
+# Wayland utilities
+uwsm
+wev
+wl-clipboard
+xdg-desktop-portal-hyprland
+xdg-desktop-portal-gnome
+
+# Application launcher
+wofi
+
+# Status bar
+waybar
+
+# Notifications
+swaync
+nwg-dock-hyprland
+
+# Theming
+nwg-look
+kvantum
+qt5-wayland
+qt6-wayland
+qt6ct
+catppuccin-gtk-theme-mocha
+
+# GTK/Qt integration
+breeze-gtk
+breeze
+
+# Wallpapers
+knighttime
+gnome-backgrounds
+
+# File manager integration
+dolphin
+dolphin-plugins
+gvfs
+gvfs-afc
+gvfs-goa
+gvfs-google
+gvfs-gphoto2
+gvfs-mtp
+gvfs-nfs
+gvfs-onedrive
+gvfs-smb
+gvfs-wsdd
+
+# System settings
+systemsettings
+kde-cli-tools
+kde-gtk-config
+kmenuedit
+
+# Polkit
+polkit-gnome
+polkit-kde-agent
+
+# Screen/Display
+ddcutil
+brightnessctl
+kscreen
+
+# Audio control
+pavucontrol
+
+# Network
+discover
+flatpak-kcm
+
+# Other desktop apps
+pacseek

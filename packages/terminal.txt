@@ -1,0 +1,62 @@
+# Terminal and shell packages
+
+# Shell
+zsh
+zsh-autosuggestions
+zsh-syntax-highlighting
+zsh-theme-powerlevel10k
+
+# Terminals
+ghostty
+kitty
+alacritty
+
+# Terminal utilities
+bat
+eza
+fzf
+zoxide
+starship
+tldr
+btop
+cava
+fastfetch
+cmatrix
+cpufetch
+lolcat
+
+# File managers
+cd
+yazi
+thunar
+thunar-volman
+tumbler
+ffmpegthumbs
+
+# System monitors
+htop
+
+# Archive tools
+ark
+
+# Clipboard
+wl-clipboard
+xclip
+xsel
+
+# Image tools
+grim
+slurp
+swappy
+
+# Fonts
+ttf-cascadia-code-nerd
+ttf-jetbrains-mono-nerd
+woff2-font-awesome
+
+# Document viewers
+zathura
+
+# Other
+fortune-mod
+asciiquarium

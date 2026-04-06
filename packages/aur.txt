@@ -1,0 +1,18 @@
+# AUR Packages - install with yay/paru
+
+# Browsers
+brave-bin
+
+# Development
+visual-studio-code-bin
+
+# Git tools
+lazygit
+
+# System info
+neofetch-git
+
+# Package manager helper
+yay
+
+# Additional tools can be added here
