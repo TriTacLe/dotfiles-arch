@@ -133,7 +133,7 @@ install_yay() {
     log_success "yay installed"
 }
 
-# Install essential packages first
+# Install essential packages first - CRITICAL, must succeed
 install_essential() {
     log_info "Installing essential packages first..."
     
@@ -146,14 +146,32 @@ install_essential() {
         "base-devel"
         "libxml2"
         "openconnect"
-        "network-manager-openconnect"
     )
     
-    # Install all at once for speed
-    if sudo pacman -S --needed --noconfirm "${essentials[@]}"; then
-        echo -e "  ${GREEN}✓${NC} Essential packages installed"
-    else
-        log_warn "Some essential packages may have failed"
+    # Install one by one to identify failures
+    local failed=()
+    for pkg in "${essentials[@]}"; do
+        echo -n "  Installing $pkg... "
+        if sudo pacman -S --needed --noconfirm "$pkg" &>/dev/null; then
+            echo -e "${GREEN}OK${NC}"
+        else
+            echo -e "${RED}FAILED${NC}"
+            failed+=("$pkg")
+        fi
+    done
+    
+    # Check if any critical packages failed
+    if [[ ${#failed[@]} -gt 0 ]]; then
+        log_error "Failed to install essential packages: ${failed[*]}"
+        log_info "Please install them manually and try again:"
+        echo "  sudo pacman -S ${failed[*]}"
+        exit 1
+    fi
+    
+    # Verify zsh is actually installed
+    if ! command -v zsh &>/dev/null; then
+        log_error "Zsh installation failed! Zsh is required."
+        exit 1
     fi
     
     # Create ~/.config if it doesn't exist
@@ -284,20 +302,35 @@ stow_packages() {
     
     log_info "Found ${#packages[@]} packages to stow"
     
-    # Stow each
+    # Stow each with better error handling
+    local failed_pkgs=()
     for pkg in "${packages[@]}"; do
         echo -n "  $pkg... "
-        if stow --dotfiles -t "$HOME" "$pkg" 2>/dev/null; then
+        
+        # Try normal stow first, show error if it fails
+        if stow --dotfiles -t "$HOME" "$pkg" 2>&1; then
             echo -e "${GREEN}OK${NC}"
         else
-            echo -e "${YELLOW}adopting${NC}"
-            stow --dotfiles --adopt -t "$HOME" "$pkg" 2>/dev/null || {
-                log_warn "Failed to stow $pkg"
-            }
+            echo ""
+            log_warn "Stow conflict for $pkg, adopting existing files..."
+            if stow --dotfiles --adopt -t "$HOME" "$pkg" 2>&1; then
+                echo -e "  ${GREEN}✓${NC} $pkg stowed (adopted)"
+            else
+                log_error "Failed to stow $pkg"
+                failed_pkgs+=("$pkg")
+            fi
         fi
     done
     
-    log_success "Dotfiles stowed"
+    if [[ ${#failed_pkgs[@]} -eq 0 ]]; then
+        log_success "Dotfiles stowed"
+    else
+        log_warn "Some packages failed to stow: ${failed_pkgs[*]}"
+        log_info "You can try stowing them manually:"
+        for pkg in "${failed_pkgs[@]}"; do
+            echo "  stow --dotfiles -t ~ $pkg"
+        done
+    fi
 }
 
 # Post install

@@ -33,7 +33,6 @@ kvantum
 qt5-wayland
 qt6-wayland
 qt6ct
-catppuccin-gtk-theme-mocha
 
 # GTK/Qt integration
 breeze-gtk
@@ -49,7 +48,6 @@ dolphin-plugins
 gvfs
 gvfs-afc
 gvfs-goa
-gvfs-google
 gvfs-gphoto2
 gvfs-mtp
 gvfs-nfs

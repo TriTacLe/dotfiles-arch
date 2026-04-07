@@ -41,7 +41,6 @@ zsh
 # VPN support
 libxml2
 openconnect
-network-manager-openconnect
 
 # File systems
 ntfs-3g
