@@ -67,10 +67,13 @@ if [[ -d "$DOTFILES_DIR/.git" ]] && command -v git &>/dev/null; then
         exit 0
     fi
 
-    # Create structured commit message
+    # Create structured commit message with PC identification
     local pkg_list=$(echo "$PACKAGES" | tr '\n' ' ' | sed 's/ $//')
     local timestamp=$(date '+%Y-%m-%d %H:%M:%S')
-    local commit_msg="[AUTO] 🤖 Tracked packages: $pkg_list"
+    local hostname=$(hostname)
+    local machine_type=$(detect_machine_type)
+    
+    local commit_msg="[AUTO] 🤖 [$hostname:$machine_type] Tracked packages: $pkg_list"
 
     # Commit changes
     if git commit -m "$commit_msg" >/dev/null 2>&1; then
