@@ -2,7 +2,7 @@
 # Auto-track packages - APPENDS to dotfiles package lists
 # Runs after pacman transactions via hook
 
-DOTFILES_DIR="${DOTFILES_DIR:-$HOME/Desktop/dotfiles}"
+DOTFILES_DIR="/home/tri/Desktop/dotfiles"
 PACKAGES_DIR="$DOTFILES_DIR/packages"
 AUTO_PACKAGES="$PACKAGES_DIR/auto-tracked.txt"
 

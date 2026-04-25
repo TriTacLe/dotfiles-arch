@@ -11,4 +11,4 @@ Target = *
 [Action]
 Description = Auto-track packages in dotfiles...
 When = PostTransaction
-Exec = /bin/bash -c 'bash ~/.config/hypr/scripts/pkgtrack_auto.sh || true'
+Exec = /bin/bash -c 'bash /home/tri/Desktop/dotfiles/scripts/pkgtrack_auto.sh || true'
