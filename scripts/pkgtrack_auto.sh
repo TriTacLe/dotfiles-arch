@@ -51,10 +51,35 @@ for file in "$PACKAGES_DIR"/*.txt; do
     mv "$temp_file" "$file"
 done
 
-# Quiet commit (if git repo exists)
+# Auto-commit and push to GitHub (if git repo exists)
 if [[ -d "$DOTFILES_DIR/.git" ]] && command -v git &>/dev/null; then
-    cd "$DOTFILES_DIR" && git add packages/*.txt >/dev/null 2>&1
-    git commit -m "Auto-track: $PACKAGES" >/dev/null 2>&1 && echo "[git] Auto-committed package updates"
+    cd "$DOTFILES_DIR"
+
+    # Add package changes
+    git add packages/*.txt >/dev/null 2>&1
+
+    # Check if there are changes to commit
+    if git diff --cached --quiet packages/; then
+        # No changes, skip commit
+        exit 0
+    fi
+
+    # Create structured commit message
+    local pkg_list=$(echo "$PACKAGES" | tr '\n' ' ' | sed 's/ $//')
+    local timestamp=$(date '+%Y-%m-%d %H:%M:%S')
+    local commit_msg="[AUTO] 🤖 Tracked packages: $pkg_list"
+
+    # Commit changes
+    if git commit -m "$commit_msg" >/dev/null 2>&1; then
+        echo "[git] ✅ Auto-committed: $pkg_list"
+
+        # Auto-push to GitHub
+        if git push >/dev/null 2>&1; then
+            echo "[git] 🚀 Auto-pushed to GitHub"
+        else
+            echo "[git] ⚠️  Auto-push failed (check GitHub auth)"
+        fi
+    fi
 fi
 
 exit 0
