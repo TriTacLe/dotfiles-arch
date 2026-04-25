@@ -283,6 +283,18 @@ post() {
     else
         warn "Could not enable ssh-agent (may not be critical)"
     fi
+    
+    # Setup automatic package tracking
+    if [[ -x "$DOTFILES_DIR/scripts/setup-autotrack.sh" ]]; then
+        info "Setting up automatic package tracking..."
+        if bash "$DOTFILES_DIR/scripts/setup-autotrack.sh"; then
+            ok "Automatic package tracking enabled"
+        else
+            warn "Auto-tracking setup failed (run manually: ./scripts/setup-autotrack.sh)"
+        fi
+    else
+        warn "Auto-tracking script not found (skipping)"
+    fi
 }
 
 # Main
