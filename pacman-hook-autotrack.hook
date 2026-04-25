@@ -1,0 +1,14 @@
+# Pacman hook - Auto-track packages after install
+# This runs after every pacman transaction
+
+[Trigger]
+Operation = Install
+Operation = Upgrade
+Operation = Remove
+Type = Package
+Target = *
+
+[Action]
+Description = Auto-track packages in dotfiles...
+When = PostTransaction
+Exec = /bin/bash -c 'bash ~/.config/hypr/scripts/pkgtrack_auto.sh || true'

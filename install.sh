@@ -24,6 +24,13 @@ set -e
 #   - Reports which packages failed to install
 #   - No silent failures (unlike the old version!)
 #   - Works on both fresh installs and existing systems
+#   - Auto-tracking: Packages are automatically added to package lists
+# 
+# Auto-Tracking Setup:
+#   After installation, run this to enable automatic package tracking:
+#   sudo cp pacman-hook-autotrack.hook /usr/share/libalpm/hooks/20-dotfiles-autotrack.hook
+# 
+#   Now every pacman/yay install will automatically update your package lists!
 # =============================================================================
 
 DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
