@@ -229,7 +229,7 @@ alias cat="bat --paging=never"  # Vis som cat, men med syntax highlighting
 alias lss="eza --tree --icons --level=2"
 alias lsss="eza --tree --icons --level=3"
 alias lssss="eza --tree --icons --level=4"
-alias tree="eza --tree --icons --level=4"
+alias tree="eza --tree --icons"
 alias ls="eza --icons"
 alias la="eza --long --header --icons --git --all --group-directories-first --sort=type"
 alias py="python"
@@ -279,6 +279,8 @@ alias gds="git diff --staged"
 alias gl="git log --oneline --graph --decorate"
 alias gb="git branch"
 alias gba="git branch -a"
+alias gbd="git branch -D"
+alias gsw="git switch"
 
 # Maven
 alias m="mvn"
@@ -326,6 +328,16 @@ EOF
 #alias powersave="sudo echo "2000000" > /sys/devices/system/cpu/cpu*/cpufreq/scaling_max_freq"
 #alias performance="sudo echo "3201000" > /sys/devices/system/cpu/cpu*/cpufreq/scaling_max_freq"
 
+# SSH with TERM fix for modern terminals (Ghostty) connecting to older servers
+# The remote server doesn't have 'xterm-ghostty' in its terminfo database
+# Usage: ssh-fixterm user@host  OR  just use 'ssh' (it will auto-fix TERM)
+ssh() {
+    if [[ "$TERM" == "xterm-ghostty" ]]; then
+        TERM=xterm-256color command ssh "$@"
+    else
+        command ssh "$@"
+    fi
+}
 alias fk="fuck"
 
 # Gradle 

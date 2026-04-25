@@ -3,5 +3,5 @@ Description=Battery warning check
 
 [Service]
 Type=oneshot
-ExecStart=/home/tri/.config/hypr/scripts/battery_warning.sh
+ExecStart=%h/.config/hypr/scripts/battery_warning.sh
 

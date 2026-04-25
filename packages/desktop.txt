@@ -25,6 +25,8 @@ waybar
 
 # Notifications
 swaync
+
+# Dock
 nwg-dock-hyprland
 
 # Theming
