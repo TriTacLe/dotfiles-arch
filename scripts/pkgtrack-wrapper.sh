@@ -1,6 +1,11 @@
 #!/bin/bash
 # Dotfiles Location Wrapper for Pacman Hook
-# This wrapper ensures the hook works regardless of dotfiles location
+# This wrapper ensures the hook works when running as root
+
+# Get the actual user (not root) who ran sudo
+if [[ -n "$SUDO_USER" ]]; then
+    HOME="/home/$SUDO_USER"
+fi
 
 # Auto-detect dotfiles location using common paths
 DOTFILES_LOCATIONS=(
