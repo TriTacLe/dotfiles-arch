@@ -37,6 +37,9 @@ tree
 less
 which
 zsh
+man-db
+man-pages
+openssh
 
 # VPN support
 libxml2

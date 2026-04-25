@@ -6,6 +6,7 @@ hyprpaper
 hypridle
 hyprlock
 hyprshot
+wob
 
 # Display manager
 sddm
@@ -16,6 +17,12 @@ wev
 wl-clipboard
 xdg-desktop-portal-hyprland
 xdg-desktop-portal-gnome
+wlogout
+
+# System utilities
+jq
+bc
+notify-send
 
 # Application launcher
 wofi
@@ -28,6 +35,7 @@ swaync
 
 # Dock
 nwg-dock-hyprland
+nwg-bar
 
 # Theming
 nwg-look
@@ -74,10 +82,13 @@ kscreen
 
 # Audio control
 pavucontrol
+pamixer
+playerctl
 
 # Network
 discover
 flatpak-kcm
+flatpak
 
 # Other desktop apps
 pacseek

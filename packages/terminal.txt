@@ -14,15 +14,20 @@ alacritty
 bat
 eza
 fzf
+fd
+ripgrep
+delta
 zoxide
 starship
 tldr
 btop
+htop
 cava
 fastfetch
 cmatrix
 cpufetch
 lolcat
+moreutils
 
 # File managers
 yazi
@@ -33,6 +38,11 @@ ffmpegthumbs
 
 # System monitors
 htop
+
+# System info
+inxi
+neofetch
+cfastfetch
 
 # Archive tools
 ark
@@ -47,9 +57,17 @@ grim
 slurp
 swappy
 
+# Document viewers
+zathura
+zathura-pdf-mupdf
+
 # Fonts
+ttf-cascadia-code
 ttf-cascadia-code-nerd
+ttf-jetbrains-mono
 ttf-jetbrains-mono-nerd
+jetbrains-mono
+noto-fonts-emoji
 woff2-font-awesome
 
 # Document viewers

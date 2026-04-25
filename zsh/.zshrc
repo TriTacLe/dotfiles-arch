@@ -218,19 +218,11 @@ alias performance="sudo cpupower frequency-set -g performance"
 # alias wifix="rfkill unblock wlan"
 alias c="clear"
 alias ~="cd ~"
-<<<<<<< HEAD
-alias moenmarin="cd /home/tri/Desktop/moenmarin/"
-alias dotfiles="cd /home/tri/Desktop/projects/dotfiles/"
-alias orbit="cd /home/tri/Desktop/orbit/"
-alias projects=" cd /home/tri/Desktop/projects/"
-alias dataing="cd /home/tri/Desktop/dataingeniør/"
-=======
 alias moenmarin="cd $HOME/Desktop/moenmarin/"
 alias dotfiles="cd $HOME/Desktop/projects/dotfiles/"
 alias orbit="cd $HOME/Desktop/orbit/"
 alias projects="cd $HOME/Desktop/projects/"
 alias dataing="cd $HOME/Desktop/dataingeniør/"
->>>>>>> f740789db49e024cbfe11c3843b51c333d42a682
 alias nfch="neofetch"
 alias l="ls"
 alias cat="bat --paging=never"  # Vis som cat, men med syntax highlighting
@@ -542,17 +534,6 @@ alias cgz='cheat zsh'
 alias cgp='cheat python'
 alias cgd='cheat docker'
 
-<<<<<<< HEAD
-. "/home/tri/.deno/env"
-export PATH="HOME/.deno/bin:$PATH"
-export PATH="$HOME/.npm-global/bin:$PATH"
-
-# OpenClaw Completion
-source "/home/tri/.openclaw/completions/openclaw.zsh"
-
-# bun completions
-[ -s "/home/tri/.bun/_bun" ] && source "/home/tri/.bun/_bun"
-=======
 # Deno (only if installed)
 [[ -f "$HOME/.deno/env" ]] && source "$HOME/.deno/env"
 export PATH="$HOME/.deno/bin:$PATH"
@@ -563,7 +544,6 @@ export PATH="$HOME/.npm-global/bin:$PATH"
 
 # bun completions
 [[ -s "$HOME/.bun/_bun" ]] && source "$HOME/.bun/_bun"
->>>>>>> f740789db49e024cbfe11c3843b51c333d42a682
 
 # bun
 export BUN_INSTALL="$HOME/.bun"

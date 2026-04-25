@@ -13,6 +13,8 @@ npm
 python
 python-pip
 python-pynvim
+python-setuptools
+python-wheel
 
 # Go
 go
@@ -26,6 +28,10 @@ rustup
 
 # Build tools
 cmake
+cpio
+pkg-config
+gcc
+g++
 clang
 lldb
 boost
