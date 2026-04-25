@@ -11,4 +11,4 @@ Target = *
 [Action]
 Description = Auto-track packages in dotfiles...
 When = PostTransaction
-Exec = /bin/sh -c 'for dir in $HOME/Desktop/dotfiles $HOME/dotfiles $HOME/.dotfiles $HOME/Documents/dotfiles; do if [ -f "$dir/scripts/pkgtrack_auto.sh" ]; then bash "$dir/scripts/pkgtrack_auto.sh"; break; fi; done || true'
+Exec = /bin/sh -c 'for dir in $HOME/Desktop/dotfiles $HOME/dotfiles $HOME/.dotfiles; do if [ -f "$dir/scripts/pkgtrack_auto.sh" ]; then bash "$dir/scripts/pkgtrack_auto.sh"; break; fi; done || true'
