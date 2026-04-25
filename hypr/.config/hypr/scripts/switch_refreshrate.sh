@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Machine-specific: Requires eDP-1 monitor at 1920x1200
+# Commented out for cross-PC compatibility
+
 STATE_FILE="$HOME/.config/hypr/scripts/toggle_state"
 
 # Initialize state file if it doesn't exist
