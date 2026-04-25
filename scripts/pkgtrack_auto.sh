@@ -1,8 +1,11 @@
 #!/bin/bash
 # Auto-track packages - APPENDS to dotfiles package lists
 # Runs after pacman transactions via hook
+# WORKS FOR ANY USER - No hardcoded paths!
 
-DOTFILES_DIR="/home/tri/Desktop/dotfiles"
+# Auto-detect dotfiles location
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+DOTFILES_DIR="$(dirname "$(dirname "$SCRIPT_DIR")")"
 PACKAGES_DIR="$DOTFILES_DIR/packages"
 AUTO_PACKAGES="$PACKAGES_DIR/auto-tracked.txt"
 
