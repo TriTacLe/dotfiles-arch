@@ -1,60 +1,22 @@
-# Desktop Environment - Hyprland and related packages
-
-# Wayland compositor
-hyprland
-hyprpaper
-hypridle
-hyprlock
-hyprshot
-wob
-
-# Display manager
-sddm
-
-# Wayland utilities
-uwsm
-wev
-wl-clipboard
-xdg-desktop-portal-hyprland
-xdg-desktop-portal-gnome
-wlogout
-
-# System utilities
-jq
-bc
-notify-send
 
 # Application launcher
-wofi
-
-# Status bar
-waybar
-
-# Notifications
-swaync
-
-# Dock
-nwg-dock-hyprland
-nwg-bar
-
-# Theming
-nwg-look
-kvantum
-qt5-wayland
-qt6-wayland
-qt6ct
-
-# GTK/Qt integration
-breeze-gtk
+# Audio control
+bc
 breeze
-
-# Wallpapers
-knighttime
-gnome-backgrounds
-
-# File manager integration
+breeze-gtk
+brightnessctl
+ddcutil
+# Desktop Environment - Hyprland and related packages
+discover
+# Display manager
+# Dock
 dolphin
 dolphin-plugins
+# File manager integration
+flatpak
+flatpak-kcm
+gnome-backgrounds
+# GTK/Qt integration
 gvfs
 gvfs-afc
 gvfs-goa
@@ -64,31 +26,52 @@ gvfs-nfs
 gvfs-onedrive
 gvfs-smb
 gvfs-wsdd
-
-# System settings
-systemsettings
+hypridle
+hyprland
+hyprlock
+hyprpaper
+hyprshot
+jq
 kde-cli-tools
 kde-gtk-config
 kmenuedit
-
+knighttime
+kscreen
+kvantum
+# Network
+# Notifications
+notify-send
+nwg-bar
+nwg-dock-hyprland
+nwg-look
+# Other desktop apps
+pacseek
+pamixer
+pavucontrol
+playerctl
 # Polkit
 polkit-gnome
 polkit-kde-agent
-
+qt5-wayland
+qt6ct
+qt6-wayland
 # Screen/Display
-ddcutil
-brightnessctl
-kscreen
-
-# Audio control
-pavucontrol
-pamixer
-playerctl
-
-# Network
-discover
-flatpak-kcm
-flatpak
-
-# Other desktop apps
-pacseek
+sddm
+# Status bar
+swaync
+systemsettings
+# System settings
+# System utilities
+# Theming
+uwsm
+# Wallpapers
+waybar
+# Wayland compositor
+# Wayland utilities
+wev
+wl-clipboard
+wlogout
+wob
+wofi
+xdg-desktop-portal-gnome
+xdg-desktop-portal-hyprland

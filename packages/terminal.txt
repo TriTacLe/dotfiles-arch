@@ -1,78 +1,63 @@
-# Terminal and shell packages
 
-# Shell
-zsh
-zsh-autosuggestions
-zsh-syntax-highlighting
-
-# Terminals
-ghostty
-kitty
 alacritty
-
-# Terminal utilities
-bat
-eza
-fzf
-fd
-ripgrep
-delta
-zoxide
-starship
-tldr
-btop
-htop
-cava
-fastfetch
-cmatrix
-cpufetch
-lolcat
-moreutils
-
-# File managers
-yazi
-thunar
-thunar-volman
-tumbler
-ffmpegthumbs
-
-# System monitors
-htop
-
-# System info
-inxi
-neofetch
-cfastfetch
-
 # Archive tools
 ark
-
+asciiquarium
+bat
+btop
+cava
+cfastfetch
 # Clipboard
-wl-clipboard
-xclip
-xsel
-
-# Image tools
-grim
-slurp
-swappy
-
+cmatrix
+cpufetch
+delta
 # Document viewers
-zathura
-zathura-pdf-mupdf
-
+eza
+fastfetch
+fd
+ffmpegthumbs
+# File managers
 # Fonts
+fortune-mod
+fzf
+ghostty
+grim
+htop
+# Image tools
+inxi
+jetbrains-mono
+kitty
+lolcat
+moreutils
+neofetch
+noto-fonts-emoji
+# Other
+ripgrep
+# Shell
+slurp
+starship
+swappy
+# System info
+# System monitors
+# Terminal and shell packages
+# Terminals
+# Terminal utilities
+thunar
+thunar-volman
+tldr
 ttf-cascadia-code
 ttf-cascadia-code-nerd
 ttf-jetbrains-mono
 ttf-jetbrains-mono-nerd
-jetbrains-mono
-noto-fonts-emoji
+tumbler
+wl-clipboard
 woff2-font-awesome
-
-# Document viewers
+xclip
+xsel
+yazi
 zathura
-
-# Other
-fortune-mod
-asciiquarium
+zathura-pdf-mupdf
+zoxide
+zsh
+zsh-autosuggestions
+zsh-syntax-highlighting

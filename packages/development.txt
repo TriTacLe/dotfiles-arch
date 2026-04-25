@@ -1,57 +1,44 @@
+
+# API testing
+boost
+# Build tools
+clang
+cmake
+cpio
+ctags
+# Database tools
 # Development tools and languages
-
+docker
+# Docker
+docker-compose
+# Documentation
 # Editors
-neovim
-vim
-
-# Version control
-lazygit
-
+g++
+gcc
+go
+# Go
+# Java
+jdk-openjdk
+jre-openjdk
 # Languages and runtimes
+# Language servers and tools (managed by Mason in nvim, but some need system install)
+lazygit
+lldb
+neovim
 nodejs
 npm
+# nvm (curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash)
+pkg-config
 python
 python-pip
 python-pynvim
 python-setuptools
 python-wheel
-
-# Go
-go
-
-# Java
-jdk-openjdk
-jre-openjdk
-
 # Rust (rustup)
 rustup
-
-# Build tools
-cmake
-cpio
-pkg-config
-gcc
-g++
-clang
-lldb
-boost
-
-# Language servers and tools (managed by Mason in nvim, but some need system install)
-ctags
-
-# Docker
-docker
-docker-compose
-
-# Terminal multiplexer
-tmux
-
-# Database tools
-
-# API testing
-
-# Documentation
-
 # SDK managers (installed separately)
 # sdkman (curl -s "https://get.sdkman.io" | bash)
-# nvm (curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash)
+# Terminal multiplexer
+tmux
+# Version control
+vim

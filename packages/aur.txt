@@ -1,31 +1,22 @@
-# AUR Packages - install with yay/paru
-
-# Browsers
-brave-bin
-
-# Development
-visual-studio-code-bin
-
-# System info
-neofetch-git
-
-# Package manager helper
-yay
-
-# Themes
-catppuccin-gtk-theme-mocha-git
-
-# Shell themes and plugins
-zsh-theme-powerlevel10k-git
-zsh-defer
-
-# Google drive integration
-gvfs-google
 
 # Additional tools can be added here
+# AUR Packages - install with yay/paru
+avizo
+brave-bin
+# Browsers
+catppuccin-gtk-theme-mocha-git
+# Development
+# Google drive integration
+gvfs-google
+neofetch-git
 # On-screen display for volume/brightness (macOS-style)
 # Option 1: wob - minimal bar only (configured in wob/)
 # Option 2: avizo - macOS-style with icons (recommended)
-avizo
-
-# Additional tools can be added here
+# Package manager helper
+# Shell themes and plugins
+# System info
+# Themes
+visual-studio-code-bin
+yay
+zsh-defer
+zsh-theme-powerlevel10k-git

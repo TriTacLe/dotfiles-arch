@@ -1,44 +1,37 @@
-# GUI Applications
 
+baobab
 # Browsers
+code
+# Communication
+# Development
+evince
 firefox
 firefox-developer-edition
-
-# Communication
-slack
-
-# Office
-libreoffice-fresh
-
-# Media
-spotify-launcher
-obsidian
-
-# Image viewing
-loupe
-
-# System utilities
 gnome-calculator
 gnome-calendar
 gnome-clocks
+gnome-contacts
 gnome-disk-utility
+gnome-maps
+gnome-music
 gnome-system-monitor
 gnome-text-editor
 gnome-tweaks
-baobab
-
-# Development
-code
-
-# Other
-evince
-papers
-simple-scan
-snapshot
-showtime
-gnome-maps
 gnome-weather
-gnome-music
-gnome-contacts
+# GUI Applications
+# Image viewing
+libreoffice-fresh
+loupe
+# Media
 nautilus
+obsidian
+# Office
+# Other
+papers
+showtime
+simple-scan
+slack
+snapshot
+spotify-launcher
 sushi
+# System utilities
