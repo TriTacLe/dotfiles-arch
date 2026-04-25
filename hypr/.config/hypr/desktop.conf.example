@@ -1,0 +1,11 @@
+# Desktop-specific settings
+# This file is auto-loaded on desktop machines
+
+# Enable keyboard hints
+bind = $mainMod, SHIFT, 1, workspace, 11
+bind = $mainMod, SHIFT, 2, workspace, 12
+bind = $mainMod, SHIFT, 3, workspace, 13
+
+# System monitoring for desktop
+bind = ctrl alt, h, exec, btop
+bind = ctrl alt, n, exec, neofetch

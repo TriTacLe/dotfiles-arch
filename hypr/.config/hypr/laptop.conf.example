@@ -1,0 +1,35 @@
+# Laptop-specific settings
+# This file is auto-loaded on laptops
+
+# Monitor configuration for laptops
+monitor=eDP-1,preferred,auto,1
+
+# Workspace configuration (laptop - single screen)
+workspace = 1, monitor:eDP-1
+workspace = 2, monitor:eDP-1
+workspace = 3, monitor:eDP-1
+workspace = 4, monitor:eDP-1
+workspace = 5, monitor:eDP-1
+
+# Power management (laptop-specific)
+bind = , XF86PowerOff, exec, systemctl suspend
+bind = , XF86MonBrightnessUp, exec, brightnessctl set 5%+
+bind = , XF86MonBrightnessDown, exec, brightnessctl set 5%-
+
+# Touchpad settings for laptops
+device {
+    name = elan1201:00-04f3:3098-touchpad
+    natural_scroll = yes
+    tap-to-click = yes
+    middle_button_emulation = yes
+}
+
+# Laptop power optimization
+animations=false
+blur=false
+drop_shadow=false
+
+# Laptop-specific workspace management
+bind = $mainMod, m, exec, hyprctl dispatch workspace 1  # Main workspace
+bind = $mainMod, d, exec, hyprctl dispatch workspace 2  # Dev workspace
+bind = $mainMod, w, exec, hyprctl dispatch workspace 3  # Web workspace
