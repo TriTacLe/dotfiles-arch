@@ -13,10 +13,11 @@ neofetch-git
 yay
 
 # Themes
-catppuccin-gtk-theme-mocha
+catppuccin-gtk-theme-mocha-git
 
-# Shell theme
-zsh-theme-powerlevel10k
+# Shell themes and plugins
+zsh-theme-powerlevel10k-git
+zsh-defer
 
 # Google drive integration
 gvfs-google

@@ -3,42 +3,36 @@
 # =============================================================================
 # These patterns tell stow which files/directories NOT to symlink into $HOME
 # =============================================================================
+# CRITICAL: Use ^ anchor to match from start of path
+# CORRECT: ^\.git  (matches .git at root)
+# WRONG:   \.git/ (doesn't anchor, trailing slash wrong)
+# =============================================================================
 
-# Documentation
-README\.md
-GUIDE\.md
+# NEVER STOW THESE - DANGEROUS IF SYMLINKED TO HOME:
+^\.git
+^\.github
+^\.gitignore
 
-# Package lists (should not be in ~)
-pacman\.txt
-aur\.txt
-packages/
+# Repository metadata (not config files)
+^packages
+^scripts
+^bin
 
-# Git files
-\.gitignore
-\.git/
+# Documentation (not configs)
+^README\.md
+^GUIDE\.md
+^INSTALL\.md
+^Makefile
 
-# Scripts directory (not a config)
-scripts/
+# Install script itself
+^install\.sh
 
-# GitHub configs
-\.github/
-
-# Custom bin (should be handled separately if needed)
-bin/
-
-# Install files
-install\.sh
-Makefile
-
-# Backup directories
-hyprback/
+# Backup directories and files
+^hyprback
 .*\.backup-.*
-
-# Any backup files
 \.backup$
 \.bak$
-\.backup-.*
 
 # Temporary files
-test\.
-\.java$
+^test\.
+.*\.java$

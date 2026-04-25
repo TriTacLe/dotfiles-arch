@@ -5,7 +5,7 @@
 # =============================================================================
 # One script to rule them all - works on fresh installs and updates
 # =============================================================================
-
+# Note: removed 'set -e' to handle errors gracefully per-function
 set -e
 
 # Colors (check if terminal supports them)
@@ -29,12 +29,18 @@ log_success() { echo -e "${GREEN}[SUCCESS]${NC} $1"; }
 log_warn() { echo -e "${YELLOW}[WARN]${NC} $1"; }
 log_error() { echo -e "${RED}[ERROR]${NC} $1"; }
 
-# Check if running as root (DON'T!)
+# Check if running as root (DON'T!) and repo location
 check_not_root() {
     if [[ $EUID -eq 0 ]]; then
         log_error "Do not run this script as root!"
         echo "Run as your normal user with sudo access."
         exit 1
+    fi
+    
+    # Warn if repo is not in ~/dotfiles
+    if [[ "$DOTFILES_DIR" != "$HOME/dotfiles" ]]; then
+        log_warn "Repo is at $DOTFILES_DIR, not ~/dotfiles"
+        log_info "This is fine - stow will target $HOME explicitly"
     fi
 }
 
@@ -180,7 +186,7 @@ install_essential() {
     log_success "Essential packages installed"
 }
 
-# Install packages in batches
+# Install packages in batches with proper verification
 install_packages() {
     log_info "Installing all packages..."
     log_warn "This will take 10-15 minutes..."
@@ -198,10 +204,10 @@ install_packages() {
         done < "$file"
     done
     
-    # Install in batches of 50
+    # Install in batches of 50 with FULL output
     local total=${#all_pkgs[@]}
     local batch_size=50
-    local installed=0
+    local failed_pkgs=()
     
     log_info "Installing $total packages in batches..."
     
@@ -210,20 +216,52 @@ install_packages() {
         local batch_num=$((i/batch_size + 1))
         local total_batches=$(((total + batch_size - 1) / batch_size))
         
+        echo ""
         echo "  Batch $batch_num/$total_batches (${#batch[@]} packages)..."
-        if sudo pacman -S --needed --noconfirm --overwrite '*' "${batch[@]}" 2>&1 | tail -3; then
-            installed=$((installed + ${#batch[@]}))
+        echo "  Installing: ${batch[*]}"
+        echo ""
+        
+        # Install and capture ALL output
+        if sudo pacman -S --needed --noconfirm --overwrite '*' "${batch[@]}" 2>&1; then
+            echo -e "  ${GREEN}✓${NC} Batch $batch_num installed successfully"
         else
-            log_warn "Batch $batch_num may have had some failures"
+            log_warn "Batch $batch_num had failures"
+            # Track failed packages individually
+            for pkg in "${batch[@]}"; do
+                if ! pacman -Q "$pkg" &>/dev/null; then
+                    failed_pkgs+=("$pkg")
+                fi
+            done
         fi
     done
     
-    echo -e "  ${GREEN}✓${NC} Installed $installed packages"
+    # Verify installation
+    echo ""
+    log_info "Verifying package installation..."
+    local installed_count=0
+    for pkg in "${all_pkgs[@]}"; do
+        if pacman -Q "$pkg" &>/dev/null; then
+            ((installed_count++))
+        else
+            failed_pkgs+=("$pkg")
+        fi
+    done
+    
+    echo -e "  ${GREEN}✓${NC} $installed_count/$total packages installed"
+    
+    if [[ ${#failed_pkgs[@]} -gt 0 ]]; then
+        log_warn "Failed to install ${#failed_pkgs[@]} packages:"
+        echo "  ${failed_pkgs[*]}"
+        log_info "You can install them later with:"
+        echo "  sudo pacman -S ${failed_pkgs[*]}"
+    fi
     
     # Install AUR packages
     if [[ -f "packages/aur.txt" ]]; then
+        echo ""
         log_info "Installing AUR packages..."
         local aur_pkgs=()
+        local aur_failed=()
         
         while IFS= read -r line; do
             [[ "$line" =~ ^#.*$ ]] && continue
@@ -232,11 +270,22 @@ install_packages() {
         done < "packages/aur.txt"
         
         if [[ ${#aur_pkgs[@]} -gt 0 ]]; then
-            echo "  Installing ${#aur_pkgs[@]} AUR packages..."
-            if yay -S --needed --noconfirm "${aur_pkgs[@]}" 2>&1 | tail -5; then
+            echo "  Installing: ${aur_pkgs[*]}"
+            echo ""
+            
+            if yay -S --needed --noconfirm "${aur_pkgs[@]}" 2>&1; then
                 echo -e "  ${GREEN}✓${NC} AUR packages installed"
             else
-                log_warn "Some AUR packages may have failed (this is normal)"
+                log_warn "Some AUR packages failed"
+                for pkg in "${aur_pkgs[@]}"; do
+                    if ! yay -Q "$pkg" &>/dev/null; then
+                        aur_failed+=("$pkg")
+                    fi
+                done
+            fi
+            
+            if [[ ${#aur_failed[@]} -gt 0 ]]; then
+                log_warn "Failed AUR packages: ${aur_failed[*]}"
             fi
         fi
     fi
@@ -271,50 +320,90 @@ install_ntnu_vpn() {
     fi
 }
 
-# Stow packages
+# Stow packages - DANGER: Never stow .git or other repo files!
 stow_packages() {
     log_info "Stowing dotfiles..."
     
     cd "$DOTFILES_DIR"
     
+    # CRITICAL SAFETY CHECK: Never stow if .stow-local-ignore is broken
+    if ! grep -q "^\.git" .stow-local-ignore 2>/dev/null; then
+        log_error "CRITICAL: .stow-local-ignore may be broken - .git could be stowed!"
+        log_error "Refusing to continue. Please check .stow-local-ignore"
+        exit 1
+    fi
+    
     # Ensure ~/.config exists
     mkdir -p ~/.config
     
-    # Backup existing configs first
-    if [[ -f "$HOME/.zshrc" && ! -L "$HOME/.zshrc" ]]; then
-        log_warn "Backing up existing .zshrc to .zshrc.backup"
-        mv "$HOME/.zshrc" "$HOME/.zshrc.backup"
-    fi
-    
-    # Find all packages
+    # Find all packages (explicitly exclude dangerous directories)
     local packages=()
     for dir in */; do
-        [[ "$dir" == ".git/" ]] && continue
-        [[ "$dir" == "scripts/" ]] && continue
-        [[ "$dir" == "packages/" ]] && continue
-        [[ "$dir" == ".github/" ]] && continue
-        [[ "$dir" == "bin/" ]] && continue
+        local pkg="${dir%/}"
         
-        if [[ -d "$dir/.config" ]] || [[ -f "$dir/.zshrc" ]] || [[ -f "$dir/.tmux.conf" ]] || [[ -f "$dir/.gitconfig" ]]; then
-            packages+=("${dir%/}")
+        # NEVER stow these - safety first!
+        [[ "$pkg" == ".git" ]] && continue
+        [[ "$pkg" == ".github" ]] && continue
+        [[ "$pkg" == "scripts" ]] && continue
+        [[ "$pkg" == "packages" ]] && continue
+        [[ "$pkg" == "bin" ]] && continue
+        
+        # Only stow if it looks like a config package
+        if [[ -d "$pkg/.config" ]] || [[ -f "$pkg/.zshrc" ]] || [[ -f "$pkg/.tmux.conf" ]] || [[ -f "$pkg/.gitconfig" ]]; then
+            packages+=("$pkg")
         fi
     done
     
     log_info "Found ${#packages[@]} packages to stow"
     
-    # Stow each with better error handling
+    # Show what will be stowed
+    echo "  Packages: ${packages[*]}"
+    
+    # Stow each with visible output (no hiding errors!)
     local failed_pkgs=()
     for pkg in "${packages[@]}"; do
-        echo -n "  $pkg... "
+        echo ""
+        echo -n "  Stowing $pkg... "
         
-        # Try normal stow first, show error if it fails
+        # Try normal stow first - SHOW ALL OUTPUT
         if stow --dotfiles -t "$HOME" "$pkg" 2>&1; then
             echo -e "${GREEN}OK${NC}"
         else
             echo ""
-            log_warn "Stow conflict for $pkg, adopting existing files..."
-            if stow --dotfiles --adopt -t "$HOME" "$pkg" 2>&1; then
-                echo -e "  ${GREEN}✓${NC} $pkg stowed (adopted)"
+            log_warn "Conflict detected for $pkg"
+            log_info "Backing up existing files..."
+            
+            # Create backup
+            local backup_dir="$HOME/.dotfiles-backup-$(date +%s)"
+            mkdir -p "$backup_dir"
+            
+            # Backup existing conflicts
+            case "$pkg" in
+                zsh)
+                    [[ -e "$HOME/.zshrc" && ! -L "$HOME/.zshrc" ]] && mv "$HOME/.zshrc" "$backup_dir/"
+                    ;;
+                tmux)
+                    [[ -e "$HOME/.tmux.conf" && ! -L "$HOME/.tmux.conf" ]] && mv "$HOME/.tmux.conf" "$backup_dir/"
+                    ;;
+                git)
+                    [[ -e "$HOME/.gitconfig" && ! -L "$HOME/.gitconfig" ]] && mv "$HOME/.gitconfig" "$backup_dir/"
+                    ;;
+                *)
+                    # For .config packages
+                    if [[ -d "$pkg/.config" ]]; then
+                        local cfg_name=$(ls "$pkg/.config/" | head -1)
+                        if [[ -e "$HOME/.config/$cfg_name" && ! -L "$HOME/.config/$cfg_name" ]]; then
+                            mv "$HOME/.config/$cfg_name" "$backup_dir/"
+                            echo "  Backed up ~/.config/$cfg_name"
+                        fi
+                    fi
+                    ;;
+            esac
+            
+            # Now try stowing again
+            echo "  Retrying stow..."
+            if stow --dotfiles -t "$HOME" "$pkg" 2>&1; then
+                echo -e "  ${GREEN}✓${NC} $pkg stowed"
             else
                 log_error "Failed to stow $pkg"
                 failed_pkgs+=("$pkg")
@@ -322,9 +411,22 @@ stow_packages() {
         fi
     done
     
+    # CRITICAL VERIFICATION: Ensure .git was NOT stowed
+    if [[ -e "$HOME/.git" ]]; then
+        log_error "CRITICAL SAFETY FAILURE: ~/.git exists!"
+        log_error "This means your HOME is now a git repository."
+        log_error "Removing ~/.git symlink immediately..."
+        rm -f "$HOME/.git"
+        rm -f "$HOME/.github"
+        rm -f "$HOME/packages"
+        rm -f "$HOME/scripts"
+    fi
+    
     if [[ ${#failed_pkgs[@]} -eq 0 ]]; then
-        log_success "Dotfiles stowed"
+        echo ""
+        log_success "Dotfiles stowed successfully"
     else
+        echo ""
         log_warn "Some packages failed to stow: ${failed_pkgs[*]}"
         log_info "You can try stowing them manually:"
         for pkg in "${failed_pkgs[@]}"; do
@@ -337,13 +439,25 @@ stow_packages() {
 post_install() {
     log_info "Post-installation setup..."
     
-    # Install oh-my-zsh
+    # Install oh-my-zsh (but keep our .zshrc)
     if [[ ! -d "$HOME/.oh-my-zsh" ]]; then
         log_info "Installing Oh-my-zsh..."
-        if sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended; then
+        # Use KEEP_ZSHRC to prevent oh-my-zsh from overwriting our .zshrc
+        if sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended --keep-zshrc; then
             log_success "Oh-my-zsh installed"
         else
-            log_warn "Oh-my-zsh installation failed"
+            log_warn "Oh-my-zsh installation failed (trying fallback)..."
+            # Fallback: install then restore our .zshrc
+            if [[ -L "$HOME/.zshrc" ]]; then
+                # Backup the symlink target
+                local zshrc_target=$(readlink -f "$HOME/.zshrc")
+                # Install oh-my-zsh (will backup .zshrc)
+                sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended 2>/dev/null || true
+                # Restore our .zshrc
+                rm -f "$HOME/.zshrc"
+                ln -s "$zshrc_target" "$HOME/.zshrc"
+                log_success "Oh-my-zsh installed, .zshrc restored"
+            fi
         fi
     fi
     

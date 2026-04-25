@@ -130,10 +130,17 @@ case "$HOST" in
         alias hyprconf="cd ~/.config/hypr && nvim ~/.config/hypr/hyprland.conf"
 
         # Defer the other plugins for better startup time
-        source ~/.config/zsh/zsh-defer/zsh-defer.plugin.zsh
+        # Try AUR install location first, then fallback to bundled
+        if [[ -f /usr/share/zsh/plugins/zsh-defer/zsh-defer.plugin.zsh ]]; then
+            source /usr/share/zsh/plugins/zsh-defer/zsh-defer.plugin.zsh
+        elif [[ -f ~/.config/zsh/zsh-defer/zsh-defer.plugin.zsh ]]; then
+            source ~/.config/zsh/zsh-defer/zsh-defer.plugin.zsh
+        fi
 
         # zsh-defer source /usr/share/zsh/plugins/fast-syntax-highlighting/fast-syntax-highlighting.plugin.zsh
-        zsh-defer source /usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh
+        # Only source if file exists
+        [[ -f /usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh ]] && \
+            zsh-defer source /usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh
         # zsh-defer source /usr/share/zsh/plugins/zsh-autopair/autopair.zsh
         # zsh-defer source /usr/share/zsh/plugins/zsh-you-should-use/you-should-use.plugin.zsh
 
@@ -198,7 +205,10 @@ bindkey '^[[1;3C' end-of-line        # Alt+Pil høyre
  
 # To customize prompt, run `p10k configure` or edit ~/.config/zsh/.p10k.zsh.
 [[ ! -f ~/.config/zsh/.p10k.zsh ]] || source ~/.config/zsh/.p10k.zsh
-source /usr/share/zsh-theme-powerlevel10k/powerlevel10k.zsh-theme
+
+# Powerlevel10k theme (only if installed)
+[[ -f /usr/share/zsh-theme-powerlevel10k/powerlevel10k.zsh-theme ]] && \
+    source /usr/share/zsh-theme-powerlevel10k/powerlevel10k.zsh-theme
 
 alias please="sudo"
 alias wifilist="nmcli device wifi list"
@@ -208,11 +218,19 @@ alias performance="sudo cpupower frequency-set -g performance"
 # alias wifix="rfkill unblock wlan"
 alias c="clear"
 alias ~="cd ~"
+<<<<<<< HEAD
 alias moenmarin="cd /home/tri/Desktop/moenmarin/"
 alias dotfiles="cd /home/tri/Desktop/projects/dotfiles/"
 alias orbit="cd /home/tri/Desktop/orbit/"
 alias projects=" cd /home/tri/Desktop/projects/"
 alias dataing="cd /home/tri/Desktop/dataingeniør/"
+=======
+alias moenmarin="cd $HOME/Desktop/moenmarin/"
+alias dotfiles="cd $HOME/Desktop/projects/dotfiles/"
+alias orbit="cd $HOME/Desktop/orbit/"
+alias projects="cd $HOME/Desktop/projects/"
+alias dataing="cd $HOME/Desktop/dataingeniør/"
+>>>>>>> f740789db49e024cbfe11c3843b51c333d42a682
 alias nfch="neofetch"
 alias l="ls"
 alias cat="bat --paging=never"  # Vis som cat, men med syntax highlighting
@@ -512,6 +530,7 @@ alias cgz='cheat zsh'
 alias cgp='cheat python'
 alias cgd='cheat docker'
 
+<<<<<<< HEAD
 . "/home/tri/.deno/env"
 export PATH="HOME/.deno/bin:$PATH"
 export PATH="$HOME/.npm-global/bin:$PATH"
@@ -521,6 +540,18 @@ source "/home/tri/.openclaw/completions/openclaw.zsh"
 
 # bun completions
 [ -s "/home/tri/.bun/_bun" ] && source "/home/tri/.bun/_bun"
+=======
+# Deno (only if installed)
+[[ -f "$HOME/.deno/env" ]] && source "$HOME/.deno/env"
+export PATH="$HOME/.deno/bin:$PATH"
+export PATH="$HOME/.npm-global/bin:$PATH"
+
+# OpenClaw Completion (only if installed)
+[[ -f "$HOME/.openclaw/completions/openclaw.zsh" ]] && source "$HOME/.openclaw/completions/openclaw.zsh"
+
+# bun completions
+[[ -s "$HOME/.bun/_bun" ]] && source "$HOME/.bun/_bun"
+>>>>>>> f740789db49e024cbfe11c3843b51c333d42a682
 
 # bun
 export BUN_INSTALL="$HOME/.bun"
