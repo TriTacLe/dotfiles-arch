@@ -1,6 +1,7 @@
 [user]
 	name = Tri Tac Le
-	email = tritac.le@gmail.com
+#	email = tritac.le@gmail.com
+  email = trile@stud.ntnu.no
 
 [init]
   defaultBranch = master
