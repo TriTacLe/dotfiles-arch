@@ -9,7 +9,7 @@
 # Exec = /bin/bash ~/.dotfiles/scripts/pkgtrack.sh %n
 #
 # Current setup for this machine:
-Exec = /bin/bash /home/tri/Desktop/dotfiles/scripts/pkgtrack.sh %n
+# Exec = /bin/bash /home/tri/Desktop/dotfiles/scripts/pkgtrack.sh %n
 
 [Trigger]
 Operation = Install
@@ -21,4 +21,4 @@ Target = *
 [Action]
 Description = Auto-track packages in dotfiles
 When = PostTransaction
-Exec = /bin/bash /home/tri/Desktop/dotfiles/scripts/pkgtrack.sh %n
+Exec = /bin/bash /home/tri/Desktop/dotfiles/scripts/pkgtrack.sh

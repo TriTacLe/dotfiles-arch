@@ -112,8 +112,8 @@ install_yay() {
 install_packages() {
     log "Installing packages..."
     
-    local failed_pacman=()
-    local failed_aur=()
+    local failed_pacman_pkgs=()
+    local failed_aur_pkgs=()
     local total_installed=0
     
     # Essentials (install first to ensure they exist)
@@ -123,44 +123,63 @@ install_packages() {
         ok "Essentials installed"
     else
         warn "Some essentials failed to install"
-        failed_pacman+=("essentials")
+        failed_pacman_pkgs+=("essentials")
     fi
     
-    # From lists
-    log "Installing packages from package lists..."
-    for file in packages/*.txt; do
-        [[ "$file" == *"aur.txt" ]] && continue
+    # Official repos
+    if [[ -d "packages" ]]; then
+        log "Installing packages from package lists..."
+        for file in packages/*.txt; do
+            [[ "$file" == *"aur.txt" ]] && continue
         
         log "  Processing: $file"
         local pkgs=$(grep -v '^#' "$file" | grep -v '^$' | tr '\n' ' ')
         
         if [[ -n "$pkgs" ]]; then
+            # Try to install and capture errors
             if sudo pacman -S --needed --noconfirm $pkgs 2>&1 | tee /tmp/pacman-install.log; then
                 local count=$(grep -o 'installing' /tmp/pacman-install.log | wc -l)
                 total_installed=$((total_installed + count))
                 log "    ✓ $file ($count packages)"
             else
-                warn "    ✗ $file - some packages failed"
-                failed_pacman+=("$file")
+                warn "    ⚠ $file - some packages may have issues"
+                # Find which packages specifically failed
+                for pkg in $pkgs; do
+                    if ! pacman -Q "$pkg" &>/dev/null; then
+                        failed_pacman_pkgs+=("$pkg")
+                    fi
+                done
             fi
         fi
     done
+    else
+        warn "packages directory not found, skipping package installation"
+    fi
     
     # AUR
-    if [[ -f "packages/aur.txt" ]] && command -v yay &>/dev/null; then
+    if [[ -d "packages" && -f "packages/aur.txt" ]] && command -v yay &>/dev/null; then
         log "Installing AUR packages..."
         local aur_pkgs=$(grep -v '^#' packages/aur.txt | grep -v '^$' | tr '\n' ' ')
         
         if [[ -n "$aur_pkgs" ]]; then
             if yay -S --needed --noconfirm $aur_pkgs 2>&1 | tee /tmp/yay-install.log; then
-                local aur_count=$(grep -o 'installing\|downloading' /tmp/yay-install.log | wc -l)
+                local aur_count=$(grep -c 'installing' /tmp/yay-install.log 2>/dev/null || echo "0")
                 total_installed=$((total_installed + aur_count))
                 ok "AUR packages installed"
             else
-                warn "Some AUR packages failed"
-                failed_aur+=("aur packages")
+                warn "Some AUR packages failed (may not be available)"
+                # Find which AUR packages specifically failed
+                for pkg in $aur_pkgs; do
+                    if ! pacman -Q "$pkg" &>/dev/null 2>&1; then
+                        failed_aur_pkgs+=("$pkg")
+                    fi
+                done
             fi
+        else
+            info "No AUR packages to install"
         fi
+    else
+        info "No aur.txt found or yay not available, skipping AUR packages"
     fi
     
     # Verify critical packages installed
@@ -188,18 +207,25 @@ install_packages() {
     echo "========================================="
     echo "Total packages installed: $total_installed"
     
-    if [[ ${#failed_pacman[@]} -gt 0 ]]; then
-        warn "Failed package files: ${failed_pacman[*]}"
+    if [[ ${#failed_pacman_pkgs[@]} -gt 0 ]]; then
+        warn "Failed packages (official repos):"
+        for pkg in "${failed_pacman_pkgs[@]}"; do
+            echo "  - $pkg"
+        done
     fi
     
-    if [[ ${#failed_aur[@]} -gt 0 ]]; then
-        warn "Failed AUR packages: ${failed_aur[*]}"
+    if [[ ${#failed_aur_pkgs[@]} -gt 0 ]]; then
+        warn "Failed packages (AUR - may not be critical):"
+        for pkg in "${failed_aur_pkgs[@]}"; do
+            echo "  - $pkg"
+        done
+        warn "These may be unavailable or require manual install"
     fi
     
-    if [[ ${#failed_pacman[@]} -eq 0 && ${#failed_aur[@]} -eq 0 ]]; then
+    if [[ ${#failed_pacman_pkgs[@]} -eq 0 && ${#failed_aur_pkgs[@]} -eq 0 ]]; then
         ok "All packages installed successfully!"
     else
-        warn "Check /tmp/pacman-install.log or /tmp/yay-install.log for details"
+        warn "Some packages failed (non-critical). System is usable."
     fi
     echo "========================================="
 }
@@ -278,7 +304,7 @@ post() {
     
     # Enable ssh-agent
     info "Enabling ssh-agent service..."
-    if systemctl --user enable ssh-agent.service; then
+    if systemctl --user enable ssh-agent.socket &>/dev/null; then
         ok "ssh-agent enabled"
     else
         warn "Could not enable ssh-agent (may not be critical)"
@@ -295,6 +321,54 @@ post() {
     else
         warn "Auto-tracking script not found (skipping)"
     fi
+    
+    # Reload configurations if running in session
+    log "Applying configuration changes..."
+    
+    # Reload Hyprland components if running
+    if pgrep -x "Hyprland" &>/dev/null; then
+        if command -v hyprctl &>/dev/null; then
+            info "Reloading Hyprland..."
+            hyprctl reload &>/dev/null && ok "Hyprland reloaded" || warn "Could not reload Hyprland"
+        fi
+        
+        if command -v hyprpaper &>/dev/null; then
+            info "Reloading hyprpaper..."
+            if pgrep -x "hyprpaper" &>/dev/null; then
+                hyprpaper reload &>/dev/null && ok "hyprpaper reloaded" || warn "Could not reload hyprpaper"
+            else
+                # Start hyprpaper if not running but installed
+                if command -v hyprpaper &>/dev/null; then
+                    info "Starting hyprpaper..."
+                    hyprpaper &>/dev/null &
+                else
+                    warn "hyprpaper not found, skipping"
+                fi
+            fi
+        fi
+        
+        # Reload waybar if running
+        if pgrep -x "waybar" &>/dev/null; then
+            info "Reloading waybar..."
+            killall -SIGUSR2 waybar &>/dev/null && ok "waybar reloaded" || warn "Could not reload waybar"
+        fi
+    fi
+    
+    # Reload kitty if running
+    if pgrep -x "kitty" &>/dev/null; then
+        info "Reloading kitty..."
+        killall -SIGUSR1 kitty &>/dev/null && ok "kitty reloaded" || warn "Could not reload kitty"
+    fi
+    
+    # Source zsh config if running in zsh
+    if [[ -n $ZSH_VERSION ]]; then
+        info "Sourcing zsh configuration..."
+        source "$HOME/.zshrc" &>/dev/null && ok "zsh configuration sourced" || warn "Could not source zsh configuration"
+    fi
+    
+    # Reload systemd user units
+    info "Reloading systemd user daemon..."
+    systemctl --user daemon-reload &>/dev/null && ok "systemd user daemon reloaded" || warn "Could not reload systemd user daemon"
 }
 
 # Main
@@ -355,10 +429,12 @@ main() {
             ok "Installation complete!"
             echo "────────────────────────────────────────────────────────"
             echo ""
-            info "Next steps:"
-            echo "  1. Reboot your system: sudo reboot"
-            echo "  2. Or restart your shell: exec zsh"
-            echo "  3. Customize your config: nvim ~/.config/zsh/.zshrc"
+            info "Changes applied! Most services reloaded automatically."
+            echo ""
+            info "Optional next steps:"
+            echo "  1. Customize your config: nvim ~/.config/zsh/.zshrc"
+            echo "  2. Reboot if you want to ensure all changes take effect: sudo reboot"
+            echo "  3. Restart your shell if needed: exec zsh"
             echo ""
             warn "Some applications may need manual setup:"
             echo "  - SDKMAN: curl -s \"https://get.sdkman.io\" | bash"

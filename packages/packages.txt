@@ -1,6 +1,6 @@
 alacritty
 asciiquarium
-avizo
+atop
 base
 base-devel
 bat
@@ -8,8 +8,8 @@ bind
 bluez
 bluez-utils
 borg
-brave-bin
 brightnessctl
+btrfs-progs
 certbot
 cmatrix
 cowsay
@@ -18,6 +18,7 @@ docker
 docker-buildx
 docker-compose
 dolphin
+duf
 dunst
 efibootmgr
 eza
@@ -25,7 +26,6 @@ fail2ban
 firefox
 fortune-mod
 fzf
-geteduroam
 ghostty
 git
 github-cli
@@ -52,7 +52,6 @@ loki
 lolcat
 nano
 ncdu
-neofetch-git
 neovim
 net-tools
 networkmanager
@@ -75,13 +74,17 @@ qt5-wayland
 qt6-wayland
 rsync
 rust
+screen
 sddm
 slurp
 smartmontools
 sof-firmware
 stow
+strace
 swaync
+sysstat
 tailscale
+tcpdump
 tldr
 tmux
 traceroute
@@ -92,7 +95,6 @@ ufw
 unzip
 uwsm
 vim
-visual-studio-code-bin
 vulkan-intel
 vulkan-nouveau
 vulkan-radeon
@@ -112,8 +114,6 @@ xf86-video-ati
 xf86-video-nouveau
 xorg-server
 xorg-xinit
-yay
-yay-debug
 yq
 zip
 zoxide
@@ -121,4 +121,3 @@ zram-generator
 zsh
 zsh-autosuggestions
 zsh-syntax-highlighting
-zsh-theme-powerlevel10k-git

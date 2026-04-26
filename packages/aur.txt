@@ -1,0 +1,7 @@
+avr
+avizo
+brave-bin
+geteduroam
+neofetch-git
+visual-studio-code-bin
+zsh-theme-powerlevel10k-git
