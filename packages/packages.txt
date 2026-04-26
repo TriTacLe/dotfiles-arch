@@ -83,6 +83,7 @@ smartmontools
 sof-firmware
 stow
 swaync
+sysstat
 tailscale
 tldr
 tmux
