@@ -5,7 +5,7 @@
 
 # Auto-detect dotfiles location
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-DOTFILES_DIR="$(dirname "$(dirname "$SCRIPT_DIR")")"
+DOTFILES_DIR="$(dirname "$SCRIPT_DIR")"
 PACKAGES_DIR="$DOTFILES_DIR/packages"
 AUTO_PACKAGES="$PACKAGES_DIR/auto-tracked.txt"
 
@@ -68,22 +68,41 @@ if [[ -d "$DOTFILES_DIR/.git" ]] && command -v git &>/dev/null; then
     fi
 
     # Create structured commit message with PC identification
-    local pkg_list=$(echo "$PACKAGES" | tr '\n' ' ' | sed 's/ $//')
-    local timestamp=$(date '+%Y-%m-%d %H:%M:%S')
-    local hostname=$(hostname)
-    local machine_type=$(detect_machine_type)
+    pkg_list=$(echo "$PACKAGES" | tr '\n' ' ' | sed 's/ $//')
+    timestamp=$(date '+%Y-%m-%d %H:%M:%S')
     
-    local commit_msg="[AUTO] 🤖 [$hostname:$machine_type] Tracked packages: $pkg_list"
+    # Get hostname from filesystem (works when running as root)
+    if [[ -f /etc/hostname ]]; then
+        hostname=$(cat /etc/hostname)
+    elif [[ -f /proc/sys/kernel/hostname ]]; then
+        hostname=$(cat /proc/sys/kernel/hostname)
+    else
+        hostname="unknown"
+    fi
+    
+    # Detect machine type (laptop vs desktop)
+    if ls /sys/class/power_supply/ | grep -q BAT; then
+        machine_type="laptop"
+    else
+        machine_type="desktop"
+    fi
+    
+    commit_msg="[AUTO] [$hostname:$machine_type] Tracked packages: $pkg_list"
 
-    # Commit changes
+    # Commit changes and auto-push using gh CLI
     if git commit -m "$commit_msg" >/dev/null 2>&1; then
-        echo "[git] ✅ Auto-committed: $pkg_list"
-
-        # Auto-push to GitHub
-        if git push >/dev/null 2>&1; then
-            echo "[git] 🚀 Auto-pushed to GitHub"
+        echo "[git] Auto-committed: $pkg_list"
+        
+        # Auto-push using gh CLI (requires gh auth and SSH)
+        if command -v gh &>/dev/null && gh auth status &>/dev/null; then
+            if git push origin master >/dev/null 2>&1; then
+                echo "[git] Auto-pushed to GitHub via gh"
+            else
+                echo "[git] Push failed - check SSH keys and 'gh auth status'"
+            fi
         else
-            echo "[git] ⚠️  Auto-push failed (check GitHub auth)"
+            echo "[git] Push skipped - gh CLI not authenticated"
+            echo "[git] Run 'gh auth login' to enable auto-push"
         fi
     fi
 fi

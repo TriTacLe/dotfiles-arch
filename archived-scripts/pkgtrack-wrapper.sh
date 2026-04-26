@@ -7,7 +7,7 @@ if [[ -n "$SUDO_USER" ]]; then
     HOME="/home/$SUDO_USER"
 fi
 
-# Auto-detect dotfiles location using common paths
+# Common dotfiles locations using tilde expansion
 DOTFILES_LOCATIONS=(
     "$HOME/Desktop/dotfiles"
     "$HOME/dotfiles"
