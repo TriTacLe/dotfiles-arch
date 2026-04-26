@@ -1,15 +1,10 @@
+# Arch Linux Dotfiles
 
-# Arch Linux Dotfiles - Production Ready
+dotfiles for Arch Linux
 
-Simple, maintainable dotfiles for Arch Linux with automatic package tracking.
+# Credits
 
-## Features
-
-- **Simple Architecture**: 4 scripts, 1 package file
-- **Production Safe**: Zero hardcoded values, works on any PC
-- **Auto-Tracking**: Automatically tracks all package changes
-- **Multi-PC Support**: Easy to set up on multiple machines
-- **KISS Principle**: Keep It Simple Stupid - no over-engineering
+Created by [filiprs](https://github.com/filiprs)
 
 ## Quick Start
 
@@ -18,12 +13,27 @@ Simple, maintainable dotfiles for Arch Linux with automatic package tracking.
 cd ~
 git clone https://github.com/TriTacLe/dotfiles-arch.git dotfiles
 cd dotfiles
+
+# Setup your credentials (machine-specific settings)
+cp .env.example .env
+nvim .env  # Add your name, email, monitors, etc.
+
+# Run installation
 ./install.sh
 ```
 
+The installer automatically:
+
+- Installs all required packages
+- Stows your configuration files
+- Reloads running applications (Hyprland, waybar, kitty, etc.)
+- Applies zsh changes if running in zsh
+
+No reboot required for most changes!
+
 ## What Gets Installed
 
-- 115+ packages (all organized in one file)
+- packages (all organized in one file)
 - Hyprland config (window manager)
 - Shell setup (zsh, starship)
 - Development tools (neovim, tmux, git)
@@ -41,53 +51,12 @@ sudo pacman -S new-package
 git log --oneline -3
 ```
 
-See [PRODUCTION_SETUP.md](PRODUCTION_SETUP.md) for detailed production PC setup.
-
-## Architecture
-
-```
-dotfiles/
-├── scripts/
-│   ├── pkgtrack.sh       # Auto-tracking (multi-path detection)
-│   ├── config.sh        # Configuration (centralized)
-│   ├── machine-detect.sh # Machine detection
-│   └── verify.sh        # Verification script
-├── packages/
-│   └── packages.txt     # All packages (1 simple file)
-├── hypr/                # Hyprland configs (auto-detect monitors)
-├── zsh/                 # Shell configs
-└── install.sh           # One-command installation
-```
-
-## Production Safety
-
-These dotfiles are production-ready:
-
-- ✅ No hardcoded paths (automatic detection)
-- ✅ No hardcoded monitors (auto-detect)
-- ✅ Error handling for missing files
-- ✅ Tested on multiple systems
-- ✅ Simple architecture (easy to debug)
-
-See [verify-system.sh](verify-system.sh) for safety verification.
-
-## Key Design Principles
-
-1. **KISS**: Keep It Simple Stupid - no over-engineering
-2. **DRY**: Don't Repeat Yourself - shared configuration
-3. **Zero Risk**: Won't break production PC
-4. **Easy Setup**: 3 commands to install
-5. **Maintainable**: Simple code, clear structure
-
-## Getting Help
+## Test
 
 Run the verification script:
+
 ```bash
 ./verify-system.sh
 ```
 
-This checks all safety critical systems before production deployment.
-
-## License
-
-MIT - Feel free to use and modify for your own setup.
+This checks safety critical systems before production deployment.
