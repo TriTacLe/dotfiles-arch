@@ -83,6 +83,7 @@ slurp
 smartmontools
 sof-firmware
 stow
+strace
 swaync
 sysstat
 tailscale
