@@ -9,6 +9,7 @@ bluez
 bluez-utils
 brave-bin
 brightnessctl
+certbot
 cmatrix
 cowsay
 cpio
@@ -50,8 +51,8 @@ nano
 neofetch-git
 neovim
 net-tools
-networkmanager
 network-manager-applet
+networkmanager
 networkmanager-openconnect
 nginx
 nmap
@@ -76,6 +77,7 @@ sof-firmware
 stow
 swaync
 tailscale
+tldr
 tmux
 traceroute
 tree
