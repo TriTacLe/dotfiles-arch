@@ -19,6 +19,7 @@ docker
 docker-buildx
 docker-compose
 dolphin
+duf
 dunst
 efibootmgr
 eza
