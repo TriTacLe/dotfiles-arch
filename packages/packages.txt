@@ -7,6 +7,7 @@ bat
 bind
 bluez
 bluez-utils
+borg
 brave-bin
 brightnessctl
 certbot
@@ -51,8 +52,8 @@ nano
 neofetch-git
 neovim
 net-tools
-network-manager-applet
 networkmanager
+network-manager-applet
 networkmanager-openconnect
 nginx
 nmap
@@ -70,6 +71,7 @@ python-requests
 qt5-wayland
 qt6-wayland
 rsync
+rust
 sddm
 slurp
 smartmontools
