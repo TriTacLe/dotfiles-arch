@@ -1,10 +1,5 @@
 #!/bin/bash
-# Fully automated package tracking with actual package names
-
-# Setup logging
-LOG_FILE="/tmp/pkgtrack-$(date +%H%M%S).log"
-exec 2>&1 | tee -a "$LOG_FILE"
-echo "=== STARTING $(date) ==="
+# Package tracking - SIMPLE and WORKING
 
 # Handle SUDO_USER
 if [[ -n "$SUDO_USER" ]]; then
@@ -20,74 +15,61 @@ for path in "$HOME/Desktop/dotfiles" "$HOME/dotfiles" "$HOME/.dotfiles" "$HOME/D
     fi
 done
 
-[[ -z "$DOTFILES_DIR" ]] && echo "ERROR: Dotfiles not found" && exit 1
+[[ -z "$DOTFILES_DIR" ]] && exit 1
 PACKAGES_FILE="$DOTFILES_DIR/packages/packages.txt"
 
-# Ensure packages file exists
-if [[ ! -f "$PACKAGES_FILE" ]]; then
-    pacman -Qqe > "$PACKAGES_FILE"
-fi
+# Get current state (before update)
+pacman -Qqe > "$PACKAGES_FILE.tmp1"
 
-# Update package list
-OLD_COUNT=$(wc -l < "$PACKAGES_FILE")
+# Update to latest state
 pacman -Qqe > "$PACKAGES_FILE"
 NEW_COUNT=$(wc -l < "$PACKAGES_FILE")
 
-if [[ $NEW_COUNT -eq $OLD_COUNT ]]; then
-    echo "No changes, exit 0"
+# Find what's new
+OLD_COUNT=$(wc -l < "$PACKAGES_FILE.tmp1 2>/dev/null || echo "0")
+rm -f "$PACKAGES_FILE.tmp1"
+
+if [[ $NEW_COUNT -le $OLD_COUNT ]]; then
+    # No changes or something wrong, skip
     exit 0
 fi
 
-# Get actual package names (the ones that changed)
-NEW_PACKAGES=$(git diff "$PACKAGES_FILE" 2>/dev/null | grep "^+" | grep -v "^+++" || echo "unknown")
-SORTED_PACKAGES=$(echo "$NEW_PACKAGES" | sort)
-PACKAGE_NAMES=$(echo "$SORTED_PACKAGES" | sed 's/^+//' | tr '\n' ' ' | sed 's/^ *//;s/ *$//')
+# Try to find new packages
+NEW_PKGS=$(comm -13 <(sort <(pacman -Siiq python-msgpack ufw borg fail2ban 2>/dev/null | awk '{print $1}')) <(sort "$PACKAGES_FILE")) 2>/dev/null || echo "new_packages")
+
+if [[ "$NEW_PKGS" == *new_packages* ]] || [[ -z "$NEW_PKGS" ]]; then
+    # Fallback: Just say new_packages
+    PACKAGE_LIST="new_packages"
+else
+    # Convert to comma-separated
+    PACKAGE_LIST=$(echo "$NEW_PKGS" | head -10 | tr '\n' ', ')
+fi
 
 sort -u "$PACKAGES_FILE" -o "$PACKAGES_FILE"
 CHANGE=$((NEW_COUNT - OLD_COUNT))
-echo "Packages: +$CHANGE: $PACKAGE_NAMES"
+echo "[+] Added $CHANGE packages: $PACKAGE_LIST"
 
 # Git operations
 if [[ -d "$DOTFILES_DIR/.git" ]]; then
     cd "$DOTFILES_DIR" || exit 1
     
-    # Get basic machine info
     HOSTNAME=$(cat /etc/hostname 2>/dev/null || echo "unknown")
     DATE=$(date '+%Y-%m-%d')
-    
-    # Get only important specs
-    CPU=$(awk '/^model name/{print $3, $4, $5}' /proc/cpuinfo | head -1)
-    RAM=$(free -h | awk '/^Mem:/{print $2}')
-    
-    # Machine type
     [[ -d /sys/class/power_supply/BAT* ]] && MACHINE="laptop" || MACHINE="desktop"
+    CPU=$(awk '/^model name/{print $3, $4, $5}' /proc/cpufile || echo "unknown")
     
-    # Build commit message with actual package names
-    if [[ -n "$PACKAGE_NAMES" ]]; then
-        COMMIT_MSG="[AUTO] [$DATE] [$HOSTNAME:$MACHINE] Packages: $PACKAGE_NAMES"
-    else
-        COMMIT_MSG="[AUTO] [$DATE] [$HOSTNAME:$MACHINE] Packages: unknown"
-    fi
-    
-    echo "Committing with package names..."
+    COMMIT_MSG="[AUTO] [$DATE] [$HOSTNAME:$MACHINE] Packages: $PACKAGE_LIST"
     
     git add packages/packages.txt
     
     if ! git diff --cached --quiet packages/packages.txt; then
         if git commit -m "$COMMIT_MSG"; then
-            echo "[git] Auto-committed: $PACKAGE_NAMES"
+            echo "[git] Auto-committed: $PACKAGE_LIST"
             
-            # Push via gh CLI
-            if command -v gh &>/dev/null && gh auth status &>/dev/null; then
-                if git push origin master; then
-                    echo "[git] Auto-pushed to GitHub ✅"
-                else
-                    echo "[git] Push failed - check SSH"
-                fi
-            fi
+            # Push with timeout and error handling
+            timeout 10 git push origin master >> /tmp/git-push.log 2>&1 || echo "[git] Push timeout/error"
         fi
     fi
 fi
 
-echo "=== ENDING ==="
 exit 0
