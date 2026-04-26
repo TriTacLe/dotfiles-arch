@@ -86,6 +86,7 @@ stow
 swaync
 sysstat
 tailscale
+tcpdump
 tldr
 tmux
 traceroute
