@@ -43,16 +43,18 @@ CPU=$(awk '/^model name/{print $3 " " $4 " " $5}' /proc/cpuinfo | head -1 | sed 
 
 COMMIT_MSG="[AUTO] [$DATE] [$HOSTNAME:$MACHINE] Packages: $NEW_PKGS"
 
-echo "Using gh CLI for all git operations..."
+echo "Committing package changes..."
 echo "Commit message: $COMMIT_MSG"
 
-if command -v gh &>/dev/null && gh auth status &>/dev/null; then
-    git add packages/packages.txt
-    git commit -m "$COMMIT_MSG"
-    git push
-    echo "Pushed successfully"
+if [[ -n "$SUDO_USER" ]]; then
+    sudo -u "$SUDO_USER" git add packages/packages.txt
+    sudo -u "$SUDO_USER" git commit -m "$COMMIT_MSG"
+    sudo -u "$SUDO_USER" git push
 else
-    echo "gh CLI not available or not authenticated!"
+    git add packages/packages.txt
+    git commit -m "$COMMIT_MSG"  
+    git push
 fi
+echo "Pushed successfully"
 
 exit 0
