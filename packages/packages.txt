@@ -89,6 +89,7 @@ swaync
 sysstat
 tailscale
 tcpdump
+thunar
 tldr
 tmux
 traceroute
