@@ -1,5 +1,5 @@
 #!/bin/bash
-# Simple, working package tracking
+# Package tracking using gh CLI for push
 
 # Handle SUDO_USER
 if [[ -n "$SUDO_USER" ]]; then
@@ -21,13 +21,11 @@ PACKAGES_FILE="$DOTFILES_DIR/packages/packages.txt"
 # Get old count
 OLD_COUNT=$(wc -l < "$PACKAGES_FILE" 2>/dev/null || echo "0")
 
-# Update package list (get current state)
+# Update package list
 pacman -Qqe > "$PACKAGES_FILE"
 
 # Get new count
 NEW_COUNT=$(wc -l < "$PACKAGES_FILE")
-
-# Calculate change
 CHANGE=$((NEW_COUNT - OLD_COUNT))
 
 if [[ $CHANGE -le 0 ]]; then
@@ -35,9 +33,9 @@ if [[ $CHANGE -le 0 ]]; then
 fi
 
 sort -u "$PACKAGES_FILE" -o "$PACKAGES_FILE"
-echo "[+] Updated package list: $OLD_COUNT → $NEW_COUNT (+$CHANGE)"
+echo "[+] Updated package list: $OLD_COUNT - $NEW_COUNT (+$CHANGE)"
 
-# Important: Use the hook argument if available
+# Get package name from hook argument
 NEW_PKGS=""
 if [[ -n "$1" ]]; then
     NEW_PKGS="$1"
@@ -59,11 +57,17 @@ if [[ -d "$DOTFILES_DIR/.git" ]]; then
     git add packages/packages.txt
     
     if ! git diff --cached --quiet packages/packages.txt; then
-        if git commit -m "$COMMIT_MSG" 2>&1; then
+        if git commit -m "$COMMIT_MSG"; then
             echo "[git] Auto-committed: $NEW_PKGS"
             
-            # Try push with timeout
-            timeout 30 git push origin master 2>&1 || echo "[git] Push timeout/error"
+            # Use gh CLI to push (uses your authenticated session)
+            if command -v gh &>/dev/null && gh auth status &>/dev/null; then
+                if gh repo sync 2>&1; then
+                    echo "[git] Auto-pushed to GitHub via gh CLI"
+                else
+                    echo "[git] gh repo sync failed"
+                fi
+            fi
         fi
     fi
 fi
