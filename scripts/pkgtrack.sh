@@ -1,117 +1,129 @@
 #!/bin/bash
-# Simple Package Tracking - Fixed date matching for any locale
+# FULLY AUTO Package Tracking - Robust version with machine specs and debugging
 
-# Safety check
-if ! touch /tmp/pkgtrack-test.$$ 2>/dev/null; then
-    echo "[ERROR] Cannot write to files - aborting"
-    exit 1
-fi
-rm -f /tmp/pkgtrack-test.$$
+# Setup logging
+LOG_FILE="/tmp/pkgtrack-$(date +%H%M%S).log"
+exec 2>&1 | tee -a "$LOG_FILE"
+
+echo "=== STARTING $(date) ===" 
+echo "User: $(whoami), UID: $(id -u)"
 
 # Handle SUDO_USER
 if [[ -n "$SUDO_USER" ]]; then
     HOME="/home/$SUDO_USER"
+    echo "SUDO_USER: $SUDO_USER"
 fi
 
-# Find dotfiles location
-DOTFILES_LOCATIONS=(
-    "$HOME/Desktop/dotfiles"
-    "$HOME/dotfiles"
-    "$HOME/.dotfiles"
-    "$HOME/Documents/dotfiles"
-)
-
+# Find dotfiles location (robust)
 DOTFILES_DIR=""
-for location in "${DOTFILES_LOCATIONS[@]}"; do
-    if [[ -d "$location" ]]; then
-        DOTFILES_DIR="$location"
+for path in "$HOME/Desktop/dotfiles" "$HOME/dotfiles" "$HOME/.dotfiles" "$HOME/Documents/dotfiles"; do
+    if [[ -d "$path" ]]; then
+        DOTFILES_DIR="$path"
         break
     fi
 done
 
-if [[ -z "$DOTFILES_DIR" ]]; then
-    echo "[ERROR] Dotfiles directory not found"
-    exit 1
-fi
-
+[[ -z "$DOTFILES_DIR" ]] && echo "ERROR: Dotfiles not found" && exit 1
+echo "Dotfiles: $DOTFILES_DIR"
 PACKAGES_FILE="$DOTFILES_DIR/packages/packages.txt"
 
-# Create packages file if not exists
+# Ensure packages file exists and is writable
 if [[ ! -f "$PACKAGES_FILE" ]]; then
+    echo "Creating packages.txt"
     pacman -Qqe > "$PACKAGES_FILE"
 fi
 
-# Get recently installed packages (last 10 minutes)
-# Use multiple date formats to ensure compatibility
-RECENT_PACKAGES=$(pacman -Qqe | while read -r pkg; do
-    # Try multiple date formats
-    if pacman -Qi "$pkg" 2>/dev/null | grep "Install Date" | grep -q "$(date '+%Y-%m-%d')"; then
-        # Installed today, check if within last 10 minutes
-        INSTALL_TIME=$(pacman -Qi "$pkg" 2>/dev/null | grep "Install Date" | awk '{print $5}')
-        if [[ "$INSTALL_TIME" == *"$(date '+%H')"* ]]; then
-            echo "$pkg"
-        fi
-    fi
-done)
+if ! touch "$PACKAGES_FILE.tmp" 2>/dev/null; then
+    echo "ERROR: Cannot write to packages.txt"
+    exit 1
+fi
+rm -f "$PACKAGES_FILE.tmp"
 
-# Alternative: Get all packages installed in last transaction
-if [[ -z "$RECENT_PACKAGES" ]]; then
-    # Very simple approach: just update the full list
-    pacman -Qqe > "$PACKAGES_FILE"
-    echo "[+] Updated full package list"
+# Update package list
+OLD_COUNT=$(wc -l < "$PACKAGES_FILE")
+pacman -Qqe > "$PACKAGES_FILE"
+NEW_COUNT=$(wc -l < "$PACKAGES_FILE")
+CHANGE=$((NEW_COUNT - OLD_COUNT))
+
+echo "Packages: $OLD_COUNT → $NEW_COUNT ($CHANGE)"
+
+if [[ $CHANGE -eq 0 ]]; then
+    echo "No changes, exit 0"
     exit 0
 fi
 
-# Track the packages
-if [[ -n "$RECENT_PACKAGES" ]]; then
-    echo "$RECENT_PACKAGES" | while read -r pkg; do
-        [[ -z "$pkg" ]] && continue
-        grep -q "^${pkg}$" "$PACKAGES_FILE" || echo "$pkg" >> "$PACKAGES_FILE"
-        echo "[+] Tracked: $pkg"
-    done
-fi
-
-# Sort and deduplicate
 sort -u "$PACKAGES_FILE" -o "$PACKAGES_FILE"
+echo "[+] Updated packages: +$CHANGE packages"
 
-# Git commit
-if [[ -d "$DOTFILES_DIR/.git" ]] && command -v git &>/dev/null; then
-    cd "$DOTFILES_DIR" || exit 0
+# Git operations
+if [[ -d "$DOTFILES_DIR/.git" ]]; then
+    echo "Git repo found, proceeding"
+    cd "$DOTFILES_DIR" || exit 1
     
-    git add packages/packages.txt >/dev/null 2>&1
+    # Get machine specs
+    HOSTNAME=$(cat /etc/hostname 2>/dev/null || echo "unknown")
+    DATE=$(date '+%Y-%m-%d')
+    
+    # Machine type
+    if ls /sys/class/power_supply/ | grep -q BAT; then
+        MACHINE_TYPE="laptop"
+    else
+        MACHINE_TYPE="desktop"
+    fi
+    
+    # CPU and RAM
+    CPU=$(awk '/^model name/{for(i=3;i<=NF;i++)printf "%s ", $i; print ""}' /proc/cpuinfo | head -1)
+    RAM=$(free -h | awk '/^Mem:/{print $2}')
+    KERNEL=$(uname -r)
+    
+    echo "Machine: $HOSTNAME ($MACHINE_TYPE)"
+    echo "Specs: $CPU, ${RAM} RAM, $KERNEL"
+    
+    # Git add
+    echo "Git add..."
+    git add packages/packages.txt
     
     if git diff --cached --quiet packages/packages.txt; then
+        echo "No git changes"
         exit 0
     fi
     
+    echo "Git changes detected"
+    
+    NEW_PKG_COUNT=$(git diff --cached packages/packages.txt | grep "^+" | grep -v "^+++" | wc -l)
+    
     # Build commit message
-    pkg_list=$(echo "$RECENT_PACKAGES" | tr '\n' ' ' | sed 's/ $//')
-    
-    # Get hostname
-    if [[ -f /etc/hostname ]]; then
-        hostname=$(cat /etc/hostname)
-    elif [[ -f /proc/sys/kernel/hostname ]]; then
-        hostname=$(cat /proc/sys/kernel/hostname)
-    else
-        hostname="unknown"
-    fi
-    
-    commit_msg="[AUTO] [$hostname] Packages: $pkg_list"
-    
-    if git commit -m "$commit_msg" >/dev/null 2>&1; then
-        echo "[git] Auto-committed: $pkg_list"
+    COMMIT_MSG="[AUTO] [$DATE] [$HOSTNAME:$MACHINE_TYPE] Packages: +$NEW_PKG_COUNT
+
+Machine Specs: $CPU, ${RAM} RAM, Kernel $KERNEL
+Change: $OLD_COUNT → $NEW_COUNT packages"
+
+    echo "Committing..."
+    if git commit -m "$COMMIT_MSG"; then
+        echo "[git] Auto-committed: +$NEW_PKG_COUNT packages"
         
-        # Auto-push using gh CLI
-        if command -v gh &>/dev/null && gh auth status &>/dev/null; then
-            if git push origin master >/dev/null 2>&1; then
-                echo "[git] Auto-pushed to GitHub"
+        # Push via gh CLI
+        if command -v gh &>/dev/null; then
+            echo "gh CLI available"
+            if gh auth status &>/dev/null; then
+                echo "gh auth OK, pushing..."
+                if git push origin master; then
+                    echo "[git] Auto-pushed to GitHub ✅"
+                else
+                    echo "[git] Push failed"
+                fi
             else
-                echo "[git] Push failed - check SSH"
+                echo "[git] gh not authenticated"
             fi
         else
-            echo "[git] Push skipped - gh not auth"
+            echo "[git] gh CLI not available"
         fi
+    else
+        echo "[git] Commit failed"
     fi
+else
+    echo "ERROR: No git repo"
 fi
 
+echo "=== ENDING ==="
 exit 0
