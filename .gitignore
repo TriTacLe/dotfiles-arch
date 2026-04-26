@@ -2,7 +2,7 @@
 .config/nvim/lazy-lock.json
 .config/nvim/lazyvim.json
 
-# Secrets
+# Secrets and environment
 .env
 *.pem
 *.key
@@ -44,3 +44,4 @@ Thumbs.db
 *.bak
 
 
+AGENTS.md

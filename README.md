@@ -1,48 +1,62 @@
-# Dotfiles
+# Arch Linux Dotfiles
 
-Personal Arch Linux dotfiles managed with GNU Stow.
+dotfiles for Arch Linux
 
-Credits: [@filip-rs](https://github.com/filip-rs)
+# Credits
 
-## Install
+Created by [filiprs](https://github.com/filiprs)
+
+## Quick Start
 
 ```bash
-git clone https://github.com/tritacle/dotfiles-arch.git ~/dotfiles
-cd ~/dotfiles
+# Clone and setup
+cd ~
+git clone https://github.com/TriTacLe/dotfiles-arch.git dotfiles
+cd dotfiles
+
+# Setup your credentials (machine-specific settings)
+cp .env.example .env
+nvim .env  # Add your name, email, monitors, etc.
+
+# Run installation
 ./install.sh
 ```
 
-## Usage
+The installer automatically:
+
+- Installs all required packages
+- Stows your configuration files
+- Reloads running applications (Hyprland, waybar, kitty, etc.)
+- Applies zsh changes if running in zsh
+
+No reboot required for most changes!
+
+## What Gets Installed
+
+- packages (all organized in one file)
+- Hyprland config (window manager)
+- Shell setup (zsh, starship)
+- Development tools (neovim, tmux, git)
+- Terminal tools (fzf, eza, bat, jq)
+
+## Package Tracking
+
+The system automatically tracks all package installations:
 
 ```bash
-make install    # Full install
-make stow       # Stow all configs
-make unstow     # Remove stowed configs
-make list       # List stowed configs
-make test       # Run tests
-./install.sh --packages   # Packages only
-./install.sh --stow       # Stow only
+# Pacman automatically runs tracking after each install
+sudo pacman -S new-package
+
+# Verify it worked
+git log --oneline -3
 ```
 
-## Structure
+## Test
 
-Each directory is a stow package:
-
-## Configuration
-
-Copy `.env.example` to `.env` and add your values:
+Run the verification script:
 
 ```bash
-cp .env.example .env
+./verify-system.sh
 ```
 
-Run `./install.sh` to apply.
-
-## What's NOT Included
-
-These are intentionally excluded from the repo:
-
-- **SSH config** - Personal host info
-- **Secrets** - API keys in `.env` (copy from `.env.example`)
-- **Git user** - Set via `GIT_USER_NAME` and `GIT_USER_EMAIL` in `.env`
-- **Generated files** - Like `.zcompdump` (auto-created)
+This checks safety critical systems before production deployment.
