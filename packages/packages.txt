@@ -10,6 +10,7 @@ bluez-utils
 borg
 brave-bin
 brightnessctl
+btrfs-progs
 certbot
 cmatrix
 cowsay

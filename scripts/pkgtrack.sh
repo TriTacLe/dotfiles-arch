@@ -29,41 +29,41 @@ pacman -Qqe > "$PACKAGES_FILE"
 NEW_COUNT=$(wc -l < "$PACKAGES_FILE")
 CHANGE=$((NEW_COUNT - OLD_COUNT))
 
-if [[ $CHANGE -le 0 ]]; then
-    echo "No changes, exit 0"
+if [[ $CHANGE -eq 0 ]]; then
+    echo "No package count change, exit 0"
     exit 0
 fi
 
 sort -u "$PACKAGES_FILE" -o "$PACKAGES_FILE"
-echo "[+] Updated package list: $OLD_COUNT -$NEW_COUNT"
+echo "[+] Updated package list: $OLD_COUNT → $NEW_COUNT"
 
-# Try to get package names from hook argument (clean up whitespace)
-NEW_PKGS="new-packages"
-if [[ -n "$1" ]]; then
-    # Remove newlines and extra spaces
+# Try to get package names from hook argument or detect from changes
+NEW_PKGS="package-update"
+if [[ -n "$1" && "$1" != "%n" ]]; then
     NEW_PKGS=$(echo "$1" | tr '\n' ' ' | sed 's/  */ /g' | sed 's/^ *//;s/ *$//')
+else
+    NEW_PKGS="updated"
 fi
 
-# Use gh CLI for ALL git operations (works as root with your authentication)
 cd "$DOTFILES_DIR" || exit 1
 
 HOSTNAME=$(cat /etc/hostname 2>/dev/null || echo "unknown")
 DATE=$(date '+%Y-%m-%d')
 [[ -d /sys/class/power_supply/BAT* ]] && MACHINE="laptop" || MACHINE="desktop"
-CPU=$(awk '/^model name/{print $3" " " $4 " " $5}' /proc/cpuinfo | head -1 | sed 's/  */ /g' 2>/dev/null || echo "unknown")
+CPU=$(awk '/^model name/{print $3 " " $4 " " $5}' /proc/cpuinfo | head -1 | sed 's/  */ /g' 2>/dev/null || echo "unknown")
 
 COMMIT_MSG="[AUTO] [$DATE] [$HOSTNAME:$MACHINE] Packages: $NEW_PKGS"
 
 echo "Using gh CLI for all git operations..."
 echo "Commit message: $COMMIT_MSG"
 
-# Use gh CLI to do everything (works as root)
 if command -v gh &>/dev/null && gh auth status &>/dev/null; then
-    # Use gh CLI for add + commit + push
-    echo "gh repo sync"
-    gh repo sync -c "$COMMIT_MSG" 2>&1 | head -10
+    git add packages/packages.txt
+    git commit -m "$COMMIT_MSG"
+    git push
+    echo "Pushed successfully"
 else
-    echo "gh CLI not available!"
+    echo "gh CLI not available or not authenticated!"
 fi
 
 exit 0
