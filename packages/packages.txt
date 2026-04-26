@@ -50,8 +50,8 @@ nano
 neofetch-git
 neovim
 net-tools
-network-manager-applet
 networkmanager
+network-manager-applet
 networkmanager-openconnect
 nginx
 nmap
@@ -68,6 +68,7 @@ polkit-kde-agent
 python-requests
 qt5-wayland
 qt6-wayland
+rsync
 sddm
 slurp
 smartmontools
