@@ -51,6 +51,7 @@ linux-lts
 loki
 lolcat
 nano
+ncdu
 neofetch-git
 neovim
 net-tools
