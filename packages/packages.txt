@@ -20,6 +20,7 @@ dolphin
 dunst
 efibootmgr
 eza
+fail2ban
 firefox
 fortune-mod
 fzf
