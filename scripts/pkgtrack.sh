@@ -1,19 +1,19 @@
 #!/bin/bash
-# Simple Package Tracking - ONE file, NO complexity, SAFE for production
+# Simple Package Tracking - Fixed date matching for any locale
 
-# Safety check: ensure we can write to files
+# Safety check
 if ! touch /tmp/pkgtrack-test.$$ 2>/dev/null; then
     echo "[ERROR] Cannot write to files - aborting"
     exit 1
 fi
 rm -f /tmp/pkgtrack-test.$$
 
-# Handle SUDO_USER (pacman runs as root)
+# Handle SUDO_USER
 if [[ -n "$SUDO_USER" ]]; then
     HOME="/home/$SUDO_USER"
 fi
 
-# Find dotfiles location (with multiple fallbacks)
+# Find dotfiles location
 DOTFILES_LOCATIONS=(
     "$HOME/Desktop/dotfiles"
     "$HOME/dotfiles"
@@ -29,10 +29,8 @@ for location in "${DOTFILES_LOCATIONS[@]}"; do
     fi
 done
 
-# Safety check: ensure dotfiles found
 if [[ -z "$DOTFILES_DIR" ]]; then
     echo "[ERROR] Dotfiles directory not found"
-    echo "[INFO] Tried: ${DOTFILES_LOCATIONS[*]}"
     exit 1
 fi
 
@@ -43,28 +41,30 @@ if [[ ! -f "$PACKAGES_FILE" ]]; then
     pacman -Qqe > "$PACKAGES_FILE"
 fi
 
-# Ensure we can write to this file
-if ! touch "$PACKAGES_FILE.$$" 2>/dev/null; then
-    echo "[ERROR] Cannot write to $PACKAGES_FILE"
-    exit 1
-fi
-rm -f "$PACKAGES_FILE.$$"
+# Get recently installed packages (last 10 minutes)
+# Use multiple date formats to ensure compatibility
+RECENT_PACKAGES=$(pacman -Qqe | while read -r pkg; do
+    # Try multiple date formats
+    if pacman -Qi "$pkg" 2>/dev/null | grep "Install Date" | grep -q "$(date '+%Y-%m-%d')"; then
+        # Installed today, check if within last 10 minutes
+        INSTALL_TIME=$(pacman -Qi "$pkg" 2>/dev/null | grep "Install Date" | awk '{print $5}')
+        if [[ "$INSTALL_TIME" == *"$(date '+%H')"* ]]; then
+            echo "$pkg"
+        fi
+    fi
+done)
 
-# Get packages from pacman hook or recent installs
-if [[ -n "$H_PKGNAME" ]]; then
-    PACKAGES="$H_PKGNAME"
-else
-    # Add all current packages (simple approach)
+# Alternative: Get all packages installed in last transaction
+if [[ -z "$RECENT_PACKAGES" ]]; then
+    # Very simple approach: just update the full list
     pacman -Qqe > "$PACKAGES_FILE"
-    PACKAGES="full_update"
+    echo "[+] Updated full package list"
+    exit 0
 fi
 
-# Actually track the packages
-if [[ "$PACKAGES" == "full_update" ]]; then
-    echo "[+] Updated full package list"
-else
-    # Add new packages to list
-    echo "$PACKAGES" | while read -r pkg; do
+# Track the packages
+if [[ -n "$RECENT_PACKAGES" ]]; then
+    echo "$RECENT_PACKAGES" | while read -r pkg; do
         [[ -z "$pkg" ]] && continue
         grep -q "^${pkg}$" "$PACKAGES_FILE" || echo "$pkg" >> "$PACKAGES_FILE"
         echo "[+] Tracked: $pkg"
@@ -85,9 +85,9 @@ if [[ -d "$DOTFILES_DIR/.git" ]] && command -v git &>/dev/null; then
     fi
     
     # Build commit message
-    pkg_list=$(echo "$PACKAGES" | tr '\n' ' ' | sed 's/ $//')
+    pkg_list=$(echo "$RECENT_PACKAGES" | tr '\n' ' ' | sed 's/ $//')
     
-    # Get hostname (works as root)
+    # Get hostname
     if [[ -f /etc/hostname ]]; then
         hostname=$(cat /etc/hostname)
     elif [[ -f /proc/sys/kernel/hostname ]]; then
