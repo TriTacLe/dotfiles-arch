@@ -19,31 +19,20 @@ done
 [[ -z "$DOTFILES_DIR" ]] && exit 1
 PACKAGES_FILE="$DOTFILES_DIR/packages/packages.txt"
 
-# Get old count
-OLD_COUNT=$(wc -l < "$PACKAGES_FILE" 2>/dev/null || echo "0")
+# Save old list to temp file
+OLD_PACKAGES_FILE=$(mktemp)
+cp "$PACKAGES_FILE" "$OLD_PACKAGES_FILE" 2>/dev/null || true
 
 # Update package list
 pacman -Qqe > "$PACKAGES_FILE"
-
-# Get new count
-NEW_COUNT=$(wc -l < "$PACKAGES_FILE")
-CHANGE=$((NEW_COUNT - OLD_COUNT))
-
-if [[ $CHANGE -eq 0 ]]; then
-    echo "No package count change, exit 0"
-    exit 0
-fi
-
 sort -u "$PACKAGES_FILE" -o "$PACKAGES_FILE"
-echo "[+] Updated package list: $OLD_COUNT → $NEW_COUNT"
 
-# Try to get package names from hook argument or detect from changes
-NEW_PKGS="package-update"
-if [[ -n "$1" && "$1" != "%n" ]]; then
-    NEW_PKGS=$(echo "$1" | tr '\n' ' ' | sed 's/  */ /g' | sed 's/^ *//;s/ *$//')
-else
-    NEW_PKGS="updated"
-fi
+# Detect new packages (only in new file)
+NEW_PKGS=$(comm -13 <(sort "$OLD_PACKAGES_FILE") "$PACKAGES_FILE" | tr '\n' ' ' | sed 's/  */ /g' | sed 's/^ *//;s/ *$//')
+rm -f "$OLD_PACKAGES_FILE"
+
+NEW_COUNT=$(wc -l < "$PACKAGES_FILE")
+[[ -n "$NEW_PKGS" ]] && echo "[+] New packages: $NEW_PKGS" || NEW_PKGS="updated"
 
 cd "$DOTFILES_DIR" || exit 1
 
