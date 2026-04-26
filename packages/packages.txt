@@ -76,6 +76,7 @@ qt5-wayland
 qt6-wayland
 rsync
 rust
+screen
 sddm
 slurp
 smartmontools
