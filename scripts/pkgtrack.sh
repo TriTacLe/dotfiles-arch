@@ -1,16 +1,24 @@
 #!/bin/bash
-# Simple Package Tracking - ONE file, NO complexity
+# Simple Package Tracking - ONE file, NO complexity, SAFE for production
+
+# Safety check: ensure we can write to files
+if ! touch /tmp/pkgtrack-test.$$ 2>/dev/null; then
+    echo "[ERROR] Cannot write to files - aborting"
+    exit 1
+fi
+rm -f /tmp/pkgtrack-test.$$
 
 # Handle SUDO_USER (pacman runs as root)
 if [[ -n "$SUDO_USER" ]]; then
     HOME="/home/$SUDO_USER"
 fi
 
-# Find dotfiles location
+# Find dotfiles location (with multiple fallbacks)
 DOTFILES_LOCATIONS=(
     "$HOME/Desktop/dotfiles"
     "$HOME/dotfiles"
     "$HOME/.dotfiles"
+    "$HOME/Documents/dotfiles"
 )
 
 DOTFILES_DIR=""
@@ -21,16 +29,26 @@ for location in "${DOTFILES_LOCATIONS[@]}"; do
     fi
 done
 
-# Fallback: use script location
+# Safety check: ensure dotfiles found
 if [[ -z "$DOTFILES_DIR" ]]; then
-    SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-    DOTFILES_DIR="$(dirname "$SCRIPT_DIR")"
+    echo "[ERROR] Dotfiles directory not found"
+    echo "[INFO] Tried: ${DOTFILES_LOCATIONS[*]}"
+    exit 1
 fi
 
 PACKAGES_FILE="$DOTFILES_DIR/packages/packages.txt"
 
 # Create packages file if not exists
-[[ ! -f "$PACKAGES_FILE" ]] && pacman -Qqe > "$PACKAGES_FILE"
+if [[ ! -f "$PACKAGES_FILE" ]]; then
+    pacman -Qqe > "$PACKAGES_FILE"
+fi
+
+# Ensure we can write to this file
+if ! touch "$PACKAGES_FILE.$$" 2>/dev/null; then
+    echo "[ERROR] Cannot write to $PACKAGES_FILE"
+    exit 1
+fi
+rm -f "$PACKAGES_FILE.$$"
 
 # Get packages from pacman hook or recent installs
 if [[ -n "$H_PKGNAME" ]]; then

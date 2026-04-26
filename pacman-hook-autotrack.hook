@@ -1,5 +1,15 @@
 # Pacman Hook - Auto-track packages after install/upgrade/remove
-# Single unified script - no wrapper needed
+# 
+# SETUP INSTRUCTIONS:
+# For this hook to work, update the Exec line below to point to your dotfiles:
+# 
+# Example paths (choose one that matches your setup):
+# Exec = /bin/bash ~/Desktop/dotfiles/scripts/pkgtrack.sh %n
+# Exec = /bin/bash ~/dotfiles/scripts/pkgtrack.sh %n
+# Exec = /bin/bash ~/.dotfiles/scripts/pkgtrack.sh %n
+#
+# Current setup for this machine:
+Exec = /bin/bash /home/tri/Desktop/dotfiles/scripts/pkgtrack.sh %n
 
 [Trigger]
 Operation = Install
