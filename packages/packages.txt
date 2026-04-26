@@ -15,6 +15,7 @@ cmatrix
 cowsay
 cpio
 docker
+docker-buildx
 docker-compose
 dolphin
 dunst
