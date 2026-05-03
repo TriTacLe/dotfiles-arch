@@ -9,6 +9,12 @@
 *token*
 *secret*
 *apikey*
+# ~/dotfiles/.gitignore
+.zshenv.secrets
+*.secrets
+.env
+.env.*
+
 
 # SSH config (personal)
 ssh/
@@ -45,3 +51,5 @@ Thumbs.db
 
 
 AGENTS.md
+CLAUDE.md
+.claude/*

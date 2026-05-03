@@ -1,39 +1,36 @@
-.PHONY: install test stow unstow list
+.PHONY: install stow unstow list verify hook help
+
+# Single source of truth for stow logic lives in scripts/config.sh.
+# Each target shells out to bash so we can `source` the library.
+
+help:
+	@echo "Targets:"
+	@echo "  make install   Run full installer (./install.sh)"
+	@echo "  make stow      Stow all packages (./install.sh --stow)"
+	@echo "  make unstow    Unstow all packages"
+	@echo "  make list      Show stow status of each package"
+	@echo "  make verify    Run system verification checks"
+	@echo "  make hook      Install pacman auto-track hook (sudo)"
 
 install:
 	./install.sh
 
-test:
-	./test.sh
-
 stow:
-	@for pkg in */; do \
-		pkg="$${pkg%/}"; \
-		[[ "$$pkg" == ".git" ]] && continue; \
-		[[ "$$pkg" == ".github" ]] && continue; \
-		[[ "$$pkg" == "packages" ]] && continue; \
-		[[ "$$pkg" == "bin" ]] && continue; \
-		[[ -d "$$pkg/.config" ]] || [[ -f "$$pkg/.zshrc" ]] || continue; \
-		stow --dotfiles -t ~ "$$pkg" 2>/dev/null || stow --dotfiles --adopt -t ~ "$$pkg"; \
-		echo "Stowed $$pkg"; \
-	done
+	./install.sh --stow
 
 unstow:
-	@for pkg in */; do \
-		pkg="$${pkg%/}"; \
-		stow -D --dotfiles -t ~ "$$pkg" 2>/dev/null; \
-	done
+	@bash -c 'source scripts/config.sh; while read pkg; do \
+		stow -D --dotfiles -t "$$HOME" "$$pkg" 2>/dev/null && echo "Unstowed $$pkg"; \
+	done < <(list_stow_packages)'
 
 list:
-	@for pkg in */; do \
-		pkg="$${pkg%/}"; \
-		[[ "$$pkg" == ".git" ]] && continue; \
-		[[ "$$pkg" == ".github" ]] && continue; \
-		[[ "$$pkg" == "packages" ]] && continue; \
-		[[ -d "$$pkg/.config" ]] || [[ -f "$$pkg/.zshrc" ]] || continue; \
-		if [[ -L "$$HOME/.config/$$pkg" ]] 2>/dev/null; then \
-			echo "[x] $$pkg"; \
-		else \
-			echo "[ ] $$pkg"; \
-		fi \
-	done
+	@bash -c 'source scripts/config.sh; while read pkg; do \
+		marker="$$HOME/.config/$$pkg"; \
+		[ -L "$$marker" ] && echo "[x] $$pkg" || echo "[ ] $$pkg"; \
+	done < <(list_stow_packages)'
+
+verify:
+	./verify-system.sh
+
+hook:
+	./install-hook.sh

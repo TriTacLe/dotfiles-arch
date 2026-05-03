@@ -1,0 +1,22 @@
+# Minimal profile - works headless, no desktop environment
+# Shell, editor, git, core CLI utilities
+base
+base-devel
+zsh
+git
+curl
+wget
+stow
+neovim
+tmux
+fzf
+eza
+bat
+ripgrep
+zoxide
+starship
+jq
+openssh
+man-db
+man-pages
+sudo
