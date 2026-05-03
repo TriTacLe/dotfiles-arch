@@ -1,7 +1,6 @@
 alacritty
 asciiquarium
 atop
-avizo
 base
 base-devel
 bat
