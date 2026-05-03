@@ -10,6 +10,21 @@ fi
 
 typeset -g POWERLEVEL9K_INSTANT_PROMPT=quiet
 
+# Source per-machine .env if present (paths, monitors, prefs).
+# Tries $DOTFILES_DIR first, then a few common clone locations.
+for _df in "$DOTFILES_DIR" \
+           "$HOME/Desktop/projects/dotfiles" \
+           "$HOME/Desktop/dotfiles" \
+           "$HOME/dotfiles" \
+           "$HOME/.dotfiles"; do
+    if [[ -n "$_df" && -f "$_df/.env" ]]; then
+        set -a; source "$_df/.env"; set +a
+        export DOTFILES_DIR="$_df"
+        break
+    fi
+done
+unset _df
+
 # Path to oh-my-zsh installation.
 export ZSH="$HOME/.oh-my-zsh"
 export TERMINAL_EMULATOR="ghostty"
@@ -218,11 +233,19 @@ alias performance="sudo cpupower frequency-set -g performance"
 # alias wifix="rfkill unblock wlan"
 alias c="clear"
 alias ~="cd ~"
-alias moenmarin="cd $HOME/Desktop/moenmarin/"
-alias dotfiles="cd $HOME/Desktop/projects/dotfiles/"
-alias orbit="cd $HOME/Desktop/orbit/"
-alias projects="cd $HOME/Desktop/projects/"
-alias dataing="cd $HOME/Desktop/dataingeniør/"
+# Project shortcuts - paths come from .env (with sensible fallbacks).
+# Aliases are only defined when the target directory exists, so a fresh PC
+# without these projects won't have stale shortcuts.
+[[ -d "${DOTFILES_DIR:-$HOME/Desktop/projects/dotfiles}" ]] && \
+    alias dotfiles="cd ${DOTFILES_DIR:-$HOME/Desktop/projects/dotfiles}"
+[[ -d "${PROJECTS_DIR:-$HOME/Desktop/projects}" ]] && \
+    alias projects="cd ${PROJECTS_DIR:-$HOME/Desktop/projects}"
+[[ -d "${ORBIT_DIR:-$HOME/Desktop/orbit}" ]] && \
+    alias orbit="cd ${ORBIT_DIR:-$HOME/Desktop/orbit}"
+[[ -n "$MOENMARIN_DIR" && -d "$MOENMARIN_DIR" ]] && \
+    alias moenmarin="cd $MOENMARIN_DIR"
+[[ -n "$DATAING_DIR" && -d "$DATAING_DIR" ]] && \
+    alias dataing="cd $DATAING_DIR"
 alias nfch="neofetch"
 alias l="ls"
 alias cat="bat --paging=never"  # Vis som cat, men med syntax highlighting
@@ -553,3 +576,4 @@ export PATH="$BUN_INSTALL/bin:$PATH"
 #THIS MUST BE AT THE END OF THE FILE FOR SDKMAN TO WORK!!!
 export SDKMAN_DIR="$HOME/.sdkman"
 [[ -s "$HOME/.sdkman/bin/sdkman-init.sh" ]] && source "$HOME/.sdkman/bin/sdkman-init.sh"
+source ~/.zshenv.secrets

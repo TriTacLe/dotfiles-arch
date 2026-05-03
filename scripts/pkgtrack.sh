@@ -1,24 +1,24 @@
 #!/bin/bash
-# Package tracking - Use gh CLI for EVERYTHING (commit + push)
+# Package tracking - regenerates packages.txt + aur.txt from pacman -Qqe,
+# then commits/pushes only if AUTO_PUSH=true (default).
+# Invoked by /usr/share/libalpm/hooks/20-dotfiles-autotrack.hook
+# via the /usr/local/bin/dotfiles-pkgtrack symlink.
 
-# Handle SUDO_USER
+# Handle SUDO_USER (pacman runs as root - rebase HOME so config.sh and git work)
 if [[ -n "$SUDO_USER" ]]; then
     HOME="/home/$SUDO_USER"
-    echo "SUDO_USER: $SUDO_USER"
 fi
 
-# Find dotfiles location
-DOTFILES_DIR=""
-for path in "$HOME/Desktop/dotfiles" "$HOME/dotfiles" "$HOME/.dotfiles" "$HOME/Documents/dotfiles"; do
-    if [[ -d "$path" ]]; then
-        DOTFILES_DIR="$path"
-        break
-    fi
-done
+# Source shared library: DOTFILES_DIR resolution, logger, settings.
+# When invoked via the symlink, BASH_SOURCE points at the real pkgtrack.sh
+# inside the dotfiles repo, so this resolves correctly.
+_self="$(readlink -f "${BASH_SOURCE[0]}" 2>/dev/null || echo "${BASH_SOURCE[0]}")"
+source "$(dirname "$_self")/config.sh"
+unset _self
 
-[[ -z "$DOTFILES_DIR" ]] && exit 1
-PACKAGES_FILE="$DOTFILES_DIR/packages/packages.txt"
-AUR_FILE="$DOTFILES_DIR/packages/aur.txt"
+[[ -z "$DOTFILES_DIR" ]] && { echo "[pkgtrack] dotfiles dir not found" >&2; exit 1; }
+PACKAGES_FILE="$PACKAGES_DIR/packages.txt"
+AUR_FILE="$PACKAGES_DIR/aur.txt"
 
 # Function to check if package is in AUR
 is_aur_package() {
@@ -79,20 +79,37 @@ else
     COMMIT_MSG="[AUTO] [$DATE] [$HOSTNAME:$MACHINE] Packages: $NEW_PKGS"
 fi
 
+# Skip the whole git dance if nothing actually changed.
+if [[ "$NEW_PKGS" == "none" && "$NEW_AUR" == "none" ]]; then
+    exit 0
+fi
+
 echo "Committing package changes..."
 echo "Official packages: $NEW_COUNT"
 echo "AUR packages: $AUR_COUNT"
 echo "Commit message: $COMMIT_MSG"
 
-if [[ -n "$SUDO_USER" ]]; then
-    sudo -u "$SUDO_USER" git add packages/packages.txt packages/aur.txt
-    sudo -u "$SUDO_USER" git commit -m "$COMMIT_MSG"
-    sudo -u "$SUDO_USER" git push
+# Run git as the real user so commit identity / ssh keys are correct.
+git_as_user() {
+    if [[ -n "$SUDO_USER" ]]; then
+        sudo -u "$SUDO_USER" git "$@"
+    else
+        git "$@"
+    fi
+}
+
+git_as_user add packages/packages.txt packages/aur.txt
+# `git commit` returns nonzero when there's nothing to commit - that's not a failure.
+git_as_user commit -m "$COMMIT_MSG" || { echo "[pkgtrack] nothing to commit"; exit 0; }
+
+if [[ "$AUTO_PUSH" == "true" ]]; then
+    if git_as_user push 2>/dev/null; then
+        echo "Pushed successfully"
+    else
+        echo "[pkgtrack] push failed (offline or no remote) - committed locally"
+    fi
 else
-    git add packages/packages.txt packages/aur.txt
-    git commit -m "$COMMIT_MSG"
-    git push
+    echo "[pkgtrack] AUTO_PUSH=false - committed locally, skipping push"
 fi
-echo "Pushed successfully"
 
 exit 0

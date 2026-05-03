@@ -34,24 +34,16 @@ set -e
 # =============================================================================
 
 DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+export DOTFILES_DIR
+
+# Load shared library (logger, is_stow_package, list_stow_packages)
+source "$DOTFILES_DIR/scripts/config.sh"
 
 # Load .env if exists
-[[ -f "$DOTFILES_DIR/.env" ]] && source "$DOTFILES_DIR/.env"
+[[ -f "$DOTFILES_DIR/.env" ]] && { set -a; source "$DOTFILES_DIR/.env"; set +a; }
 
-# Colors
-RED='\\033[0;31m'
-GREEN='\\033[0;32m'
-YELLOW='\\033[1;33m'
-BLUE='\\033[0;34m'
-MAGENTA='\\033[0;35m'
-CYAN='\\033[0;36m'
-NC='\\033[0m'
-
-log() { echo -e "${BLUE}[install]${NC} $1"; }
-ok() { echo -e "${GREEN}[ok]${NC} $1"; }
-warn() { echo -e "${YELLOW}[warn]${NC} $1"; }
-error() { echo -e "${RED}[error]${NC} $1"; }
-info() { echo -e "${CYAN}[info]${NC} $1"; }
+# Backward-compat aliases (older code in this script uses `error`)
+error() { err "$@"; }
 
 # Checks
 check() {
@@ -230,6 +222,58 @@ install_packages() {
     echo "========================================="
 }
 
+# Install packages from a single profile (packages/profiles/<name>.txt).
+# Auto-detects AUR vs official repos so each profile can mix both freely.
+install_profile() {
+    local profile="$1"
+    local profile_file="$DOTFILES_DIR/packages/profiles/${profile}.txt"
+
+    if [[ ! -f "$profile_file" ]]; then
+        err "Profile not found: $profile_file"
+        info "Available profiles:"
+        for f in "$DOTFILES_DIR/packages/profiles/"*.txt; do
+            [[ -f "$f" ]] && echo "  - $(basename "${f%.txt}")"
+        done
+        exit 1
+    fi
+
+    log "Installing profile: $profile"
+    local pkgs=()
+    while IFS= read -r line; do
+        line="${line%%#*}"      # strip comments
+        line="${line//[[:space:]]/}"
+        [[ -z "$line" ]] && continue
+        pkgs+=("$line")
+    done < "$profile_file"
+
+    [[ ${#pkgs[@]} -eq 0 ]] && { warn "Profile is empty"; return; }
+
+    local official=() aur=()
+    for pkg in "${pkgs[@]}"; do
+        if pacman -Si "$pkg" &>/dev/null; then
+            official+=("$pkg")
+        else
+            aur+=("$pkg")
+        fi
+    done
+
+    if [[ ${#official[@]} -gt 0 ]]; then
+        log "Pacman: ${#official[@]} package(s)"
+        sudo pacman -S --needed --noconfirm "${official[@]}" || warn "Some pacman packages failed"
+    fi
+
+    if [[ ${#aur[@]} -gt 0 ]]; then
+        if command -v yay &>/dev/null; then
+            log "AUR: ${#aur[@]} package(s)"
+            yay -S --needed --noconfirm "${aur[@]}" || warn "Some AUR packages failed"
+        else
+            warn "yay not installed - skipping ${#aur[@]} AUR package(s): ${aur[*]}"
+        fi
+    fi
+
+    ok "Profile '$profile' applied"
+}
+
 # Stow configs
 stow_configs() {
     log "Stowing configs..."
@@ -240,24 +284,18 @@ stow_configs() {
     local stowed=()
     local skipped=()
     
-    for dir in */; do
-        local pkg="${dir%/}"
-        [[ "$pkg" == ".git" ]] && continue
-        [[ "$pkg" == ".github" ]] && continue
-        [[ "$pkg" == "packages" ]] && continue
-        [[ "$pkg" == "bin" ]] && continue
-        [[ "$pkg" == "scripts" ]] && continue
-        [[ ! -d "$pkg/.config" ]] && [[ ! -f "$pkg/.zshrc" ]] && [[ ! -f "$pkg/.tmux.conf" ]] && [[ ! -f "$pkg/.gitconfig" ]] && continue
-        
+    local pkg
+    while IFS= read -r pkg; do
+        [[ -z "$pkg" ]] && continue
         info "  Stowing: $pkg"
         if stow --dotfiles -t "$HOME" "$pkg"; then
             stowed+=("$pkg")
-            log "    ✓ $pkg"
+            log "    ok $pkg"
         else
-            warn "    ✗ $pkg conflict or error (skipped)"
+            warn "    failed $pkg (conflict or error)"
             skipped+=("$pkg")
         fi
-    done
+    done < <(list_stow_packages)
     
     echo ""
     ok "Stowed ${#stowed[@]} packages"
@@ -310,16 +348,16 @@ post() {
         warn "Could not enable ssh-agent (may not be critical)"
     fi
     
-    # Setup automatic package tracking
-    if [[ -x "$DOTFILES_DIR/scripts/setup-autotrack.sh" ]]; then
+    # Setup automatic package tracking (optional - requires sudo)
+    if [[ -x "$DOTFILES_DIR/install-hook.sh" ]]; then
         info "Setting up automatic package tracking..."
-        if bash "$DOTFILES_DIR/scripts/setup-autotrack.sh"; then
+        if bash "$DOTFILES_DIR/install-hook.sh"; then
             ok "Automatic package tracking enabled"
         else
-            warn "Auto-tracking setup failed (run manually: ./scripts/setup-autotrack.sh)"
+            warn "Auto-tracking setup failed (run manually: ./install-hook.sh)"
         fi
     else
-        warn "Auto-tracking script not found (skipping)"
+        warn "install-hook.sh not found (skipping auto-tracking)"
     fi
     
     # Reload configurations if running in session
@@ -384,10 +422,16 @@ main() {
             echo "Usage: $0 [OPTIONS]"
             echo ""
             echo "Options:"
-            echo "  (no args)    Full install (update + packages + stow)"
-            echo "  --packages   Only install packages"
-            echo "  --stow       Only stow configs"
-            echo "  --help,-h    Show this help message"
+            echo "  (no args)            Full install (update + packages + stow)"
+            echo "  --packages           Install all packages (packages.txt + aur.txt)"
+            echo "  --profile <name>     Install just one profile (packages/profiles/<name>.txt)"
+            echo "  --stow               Only stow configs"
+            echo "  --help, -h           Show this help message"
+            echo ""
+            echo "Available profiles:"
+            for f in "$DOTFILES_DIR/packages/profiles/"*.txt; do
+                [[ -f "$f" ]] && echo "  - $(basename "${f%.txt}")"
+            done
             echo ""
             exit 0
             ;;
@@ -404,6 +448,10 @@ main() {
     case "${1:-}" in
         --packages)
             install_packages
+            ;;
+        --profile)
+            [[ -z "${2:-}" ]] && { err "--profile requires a name (see ./install.sh --help)"; exit 1; }
+            install_profile "$2"
             ;;
         --stow)
             stow_configs

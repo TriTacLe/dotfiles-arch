@@ -2,7 +2,21 @@
 # Auto-track packages - APPENDS to dotfiles package lists
 # Runs after pacman transactions via hook
 
-DOTFILES_DIR="${DOTFILES_DIR:-$HOME/Desktop/dotfiles}"
+if [[ -z "$DOTFILES_DIR" || ! -d "$DOTFILES_DIR" ]]; then
+    for path in \
+        "$HOME/Desktop/projects/dotfiles" \
+        "$HOME/Desktop/dotfiles" \
+        "$HOME/dotfiles" \
+        "$HOME/.dotfiles" \
+        "$HOME/Documents/dotfiles" \
+        "$HOME/projects/dotfiles"; do
+        if [[ -d "$path/.git" ]]; then
+            DOTFILES_DIR="$path"
+            break
+        fi
+    done
+fi
+[[ -z "$DOTFILES_DIR" ]] && exit 0
 PACKAGES_DIR="$DOTFILES_DIR/packages"
 AUTO_PACKAGES="$PACKAGES_DIR/auto-tracked.txt"
 

@@ -1,0 +1,23 @@
+# Desktop profile - Hyprland window manager + apps
+# Assumes minimal profile already applied
+hyprland
+hyprpaper
+hyprlock
+hypridle
+waybar
+wofi
+swaync
+wlogout
+xdg-desktop-portal-hyprland
+kitty
+ghostty
+alacritty
+brightnessctl
+pavucontrol
+networkmanager
+network-manager-applet
+bluez
+bluez-utils
+blueman
+fastfetch
+neofetch

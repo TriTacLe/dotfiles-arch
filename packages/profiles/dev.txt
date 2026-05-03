@@ -1,0 +1,17 @@
+# Dev profile - languages, build tools, containers
+# Assumes minimal profile already applied
+docker
+docker-buildx
+docker-compose
+go
+python
+python-pip
+nodejs
+npm
+rust
+gcc
+make
+cmake
+gdb
+lazygit
+github-cli
