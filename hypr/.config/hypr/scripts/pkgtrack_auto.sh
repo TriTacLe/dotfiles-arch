@@ -4,7 +4,6 @@
 
 if [[ -z "$DOTFILES_DIR" || ! -d "$DOTFILES_DIR" ]]; then
     for path in \
-        "$HOME/Desktop/projects/dotfiles" \
         "$HOME/Desktop/dotfiles" \
         "$HOME/dotfiles" \
         "$HOME/.dotfiles" \

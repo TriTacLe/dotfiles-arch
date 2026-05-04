@@ -28,7 +28,6 @@ fi
 
 if [[ -z "$DOTFILES_DIR" || ! -d "$DOTFILES_DIR/.git" ]]; then
     for _path in \
-        "$HOME/Desktop/projects/dotfiles" \
         "$HOME/Desktop/dotfiles" \
         "$HOME/dotfiles" \
         "$HOME/.dotfiles" \

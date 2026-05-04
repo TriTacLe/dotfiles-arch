@@ -13,7 +13,6 @@ typeset -g POWERLEVEL9K_INSTANT_PROMPT=quiet
 # Source per-machine .env if present (paths, monitors, prefs).
 # Tries $DOTFILES_DIR first, then a few common clone locations.
 for _df in "$DOTFILES_DIR" \
-           "$HOME/Desktop/projects/dotfiles" \
            "$HOME/Desktop/dotfiles" \
            "$HOME/dotfiles" \
            "$HOME/.dotfiles"; do
@@ -236,10 +235,10 @@ alias ~="cd ~"
 # Project shortcuts - paths come from .env (with sensible fallbacks).
 # Aliases are only defined when the target directory exists, so a fresh PC
 # without these projects won't have stale shortcuts.
-[[ -d "${DOTFILES_DIR:-$HOME/Desktop/projects/dotfiles}" ]] && \
-    alias dotfiles="cd ${DOTFILES_DIR:-$HOME/Desktop/projects/dotfiles}"
-[[ -d "${PROJECTS_DIR:-$HOME/Desktop/projects}" ]] && \
-    alias projects="cd ${PROJECTS_DIR:-$HOME/Desktop/projects}"
+[[ -d "${DOTFILES_DIR:-$HOME/Desktop/dotfiles}" ]] && \
+    alias dotfiles="cd ${DOTFILES_DIR:-$HOME/Desktop/dotfiles}"
+[[ -d "${PROJECTS_DIR:-$HOME/Desktop/personal}" ]] && \
+    alias personal="cd ${PROJECTS_DIR:-$HOME/Desktop/personal}"
 [[ -d "${ORBIT_DIR:-$HOME/Desktop/orbit}" ]] && \
     alias orbit="cd ${ORBIT_DIR:-$HOME/Desktop/orbit}"
 [[ -n "$MOENMARIN_DIR" && -d "$MOENMARIN_DIR" ]] && \
@@ -572,6 +571,8 @@ export PATH="$HOME/.npm-global/bin:$PATH"
 export BUN_INSTALL="$HOME/.bun"
 export PATH="$BUN_INSTALL/bin:$PATH"
 
+
+alias claudd='claude --dangerously-skip-permissions'
 
 #THIS MUST BE AT THE END OF THE FILE FOR SDKMAN TO WORK!!!
 export SDKMAN_DIR="$HOME/.sdkman"
